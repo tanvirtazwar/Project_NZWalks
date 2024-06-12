@@ -74,6 +74,6 @@ This project provides a RESTful web API built using ASP.NET Core (.NET 8), Entit
 3. Use tools like Postman or curl to send HTTP requests to the API endpoints following the documented API specification (typically provided in a separate file like `Swagger.json` or using Swagger UI).
 
 > [!NOTE]
-> Ensure the database is created and configured with the appropriate schema before running the project.
-> Consider implementing additional configuration options (e.g., environment variables) to manage database connections and other settings in different environments (development, testing, production).
-> Refer to the code itself and any additional documentation within the project for more detailed usage instructions and API endpoint specifications.
+> - Ensure the database is created and configured with the appropriate schema before running the project.
+> - Consider implementing additional configuration options (e.g., environment variables) to manage database connections and other settings in different environments (development, testing, production).
+> - Refer to the code itself and any additional documentation within the project for more detailed usage instructions and API endpoint specifications.
