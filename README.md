@@ -1,7 +1,7 @@
 # New Zealand Walks & Regions API
 ## Project
 
-This project provides a RESTful web API built using ASP.NET Core (.NET 8), Entity Framework Core (EF Core), and SQL Server. It empowers clients to manage data on New Zealand walks and regions, enabling them to:
+This project provides a RESTful web API built using *ASP.NET Core (.NET 8)*, *Entity Framework Core (EF Core)*, and *SQL Server*. It empowers clients to manage data on New Zealand walks and regions, enabling them to:
 
 - **Access** existing walk and region information
 
@@ -33,15 +33,15 @@ This project provides a RESTful web API built using ASP.NET Core (.NET 8), Entit
 
 ## Project Stack
 
-- **Backend:** ASP.NET Core (.NET 8)
+- **Backend:** *ASP.NET Core (.NET 8)*
 
-- **Database:** Microsoft SQL Server
+- **Database:** *Microsoft SQL Server*
 
-- **Data Access:** Entity Framework Core (EF Core)
+- **Data Access:** *Entity Framework Core (EF Core)*
 
-- **Object Mapping:** AutoMapper
+- **Object Mapping:** *AutoMapper*
 
-- **Authentication:** JWT
+- **Authentication:** *JWT*
 
 ## How to Run the Project
 
