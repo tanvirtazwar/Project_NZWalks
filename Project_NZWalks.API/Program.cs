@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Project_NZWalks.API;
 using Project_NZWalks.API.Data;
 using Project_NZWalks.API.Mappings;
 using Project_NZWalks.API.Middlewares;
