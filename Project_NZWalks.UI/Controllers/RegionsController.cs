@@ -5,15 +5,8 @@ using System.Text.Json;
 
 namespace Project_NZWalks.UI.Controllers
 {
-    public class RegionsController : Controller
+    public class RegionsController(IHttpClientFactory httpClientFactory) : Controller
     {
-        private readonly IHttpClientFactory httpClientFactory;
-
-        public RegionsController(IHttpClientFactory httpClientFactory)
-        {
-            this.httpClientFactory = httpClientFactory;
-        }
-
         [HttpGet]
         public async Task<IActionResult> Index()
         {
