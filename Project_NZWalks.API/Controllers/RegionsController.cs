@@ -1,31 +1,20 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project_NZWalks.API.CustomActionFilters;
 using Project_NZWalks.API.Models.Domain;
 using Project_NZWalks.API.Models.DTO;
 using Project_NZWalks.API.Repositories;
-using System.Text.Json;
 
 namespace Project_NZWalks.API.Controllers
 {
     // https://localhost:7192/api/Regions
     [Route("api/[controller]")]
     [ApiController]
-    public class RegionsController : ControllerBase
+    public class RegionsController(
+        IRegionRepository regionRepository,
+        IMapper mapper)
+        : ControllerBase
     {
-        private readonly IRegionRepository regionRepository;
-        private readonly IMapper mapper;
-        private readonly ILogger<RegionsController> logger;
-
-        public RegionsController(IRegionRepository regionRepository, 
-            IMapper mapper, ILogger<RegionsController> logger)
-        {
-            this.regionRepository = regionRepository;
-            this.mapper = mapper;
-            this.logger = logger;
-        }
-
         //POST to Create a new region
         //POST: https://localhost:7192/api/Regions
         [HttpPost]
@@ -44,7 +33,7 @@ namespace Project_NZWalks.API.Controllers
             var regionDto = mapper.Map<RegionDto>(regionDomain);
 
             //Return Dto
-            return CreatedAtAction(nameof(GetByID), new { regionDto.Id }, regionDto);
+            return CreatedAtAction(nameof(GetById), new { regionDto.Id }, regionDto);
 
         }
 
@@ -64,12 +53,12 @@ namespace Project_NZWalks.API.Controllers
             return Ok(regionsDto);
         }
 
-        //GET SINGLE REGION (Get Region By Id)
+        //GET SINGLE REGION (Get Region By ID)
         //GET: https://localhost:7192/api/Regions/ID
         [HttpGet]
         [Route("{id:Guid}")]
         //[Authorize(Roles = "Reader")]
-        public async Task<IActionResult> GetByID([FromRoute] Guid id)
+        public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
             //Check if Domain Exist
             var regionDomain = await regionRepository.GetByIDAsync(id);

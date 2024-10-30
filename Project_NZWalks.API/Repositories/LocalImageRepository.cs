@@ -7,10 +7,10 @@ namespace Project_NZWalks.API.Repositories
     {
         private readonly IWebHostEnvironment webHostEnvironment;
         private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly NZWalksDbContext dbContext;
+        private readonly NzWalksDbContext dbContext;
 
         public LocalImageRepository(IWebHostEnvironment webHostEnvironment,
-            IHttpContextAccessor httpContextAccessor, NZWalksDbContext dbContext)
+            IHttpContextAccessor httpContextAccessor, NzWalksDbContext dbContext)
         {
             this.webHostEnvironment = webHostEnvironment;
             this.httpContextAccessor = httpContextAccessor;

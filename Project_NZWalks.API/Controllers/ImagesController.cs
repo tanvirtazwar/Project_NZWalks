@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Project_NZWalks.API.Models.Domain;
 using Project_NZWalks.API.Models.DTO;
 using Project_NZWalks.API.Repositories;
@@ -8,18 +7,8 @@ namespace Project_NZWalks.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ImagesController : ControllerBase
+    public class ImagesController(IImageRepository imageRepository) : ControllerBase
     {
-        private readonly IImageRepository imageRepository;
-        private readonly ILogger<ImagesController> logger;
-
-        public ImagesController(IImageRepository imageRepository,
-            ILogger<ImagesController> logger)
-        {
-            this.imageRepository = imageRepository;
-            this.logger = logger;
-        }
-
         //Post: api/Images/Upload
         [HttpPost]
         [Route("Upload")]
@@ -49,7 +38,7 @@ namespace Project_NZWalks.API.Controllers
 
         private void ValidateFileUpload(ImageUploadRequestDto imageUploadRequestDto)
         {
-            var allowedExtensions = new string[] { ".jpg", ".jpeg", "png" };
+            var allowedExtensions = new[] { ".jpg", ".jpeg", "png" };
 
             if (!allowedExtensions.Contains(Path.GetExtension(imageUploadRequestDto.File.FileName)))
             {

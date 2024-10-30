@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Client;
 using Project_NZWalks.API.Models.DTO;
 using Project_NZWalks.API.Repositories;
 
@@ -9,21 +7,11 @@ namespace Project_NZWalks.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthController(
+        UserManager<IdentityUser> userManager,
+        ITokenRepository tokenRepository)
+        : ControllerBase
     {
-        private readonly UserManager<IdentityUser> userManager;
-        private readonly ITokenRepository tokenRepository;
-        private readonly ILogger<AuthController> logger;
-
-        public AuthController(UserManager<IdentityUser> userManager,
-            ITokenRepository tokenRepository,
-            ILogger<AuthController> logger)
-        {
-            this.userManager = userManager;
-            this.tokenRepository = tokenRepository;
-            this.logger = logger;
-        }
-
         //Post :api/Auth/Register
         [HttpPost]
         [Route("Register")]
@@ -37,18 +25,14 @@ namespace Project_NZWalks.API.Controllers
 
             var identityResult = await userManager.CreateAsync(identityUser, registerRequestDto.Password);
 
+            if (!identityResult.Succeeded) return BadRequest("Something went wrong");
+            //Add role to the user
+            if (registerRequestDto.Roles == null! || !registerRequestDto.Roles.Any())
+                return BadRequest("Something went wrong");
+            identityResult = await userManager.AddToRolesAsync(identityUser, registerRequestDto.Roles);
             if (identityResult.Succeeded)
             {
-                //Add role to the user
-                if (registerRequestDto.Roles != null && registerRequestDto.Roles.Any())
-                {
-                    identityResult = await userManager.AddToRolesAsync(identityUser, registerRequestDto.Roles);
-                    if (identityResult.Succeeded)
-                    {
-                        return Ok("User was Registered. Please login.");
-                    }
-                }
-
+                return Ok("User was Registered. Please login.");
             }
 
             return BadRequest("Something went wrong");
@@ -69,21 +53,19 @@ namespace Project_NZWalks.API.Controllers
                 {
                     //Get Roles
                     var roles = await userManager.GetRolesAsync(user);
-                    if (roles != null)
+                    if (roles == null!) return BadRequest("Username or Password incorrect");
+                    //Create Token
+                    var jwtToken = tokenRepository.CreateJWTToken(user, roles.ToList());
+                    var loginResponse = new LoginResponseDto
                     {
-                        //Create Token
-                        var jwtToken = tokenRepository.CreateJWTToken(user, roles.ToList());
-                        var loginResponse = new LoginResponseDto
-                        {
-                            JwtToken = jwtToken
-                        };
-                        return Ok(loginResponse);
-                    }
+                        JwtToken = jwtToken
+                    };
+                    return Ok(loginResponse);
 
                 }
             }
 
-            return BadRequest("Usename or Password incorrect");
+            return BadRequest("Username or Password incorrect");
         }
 
     }

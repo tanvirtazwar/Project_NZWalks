@@ -1,6 +1,4 @@
-﻿using Asp.Versioning;
-using AutoMapper;
-using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Project_NZWalks.API.CustomActionFilters;
 using Project_NZWalks.API.Models.Domain;
@@ -12,20 +10,10 @@ namespace Project_NZWalks.API.Controllers
     // /api/walks
     [Route("api/[controller]")]
     [ApiController]
-    public class WalksController : ControllerBase
+    public class WalksController(
+        IWalkRepository walkRepository,
+        IMapper mapper) : ControllerBase
     {
-        private readonly IWalkRepository walkRepository;
-        private readonly IMapper mapper;
-        private readonly ILogger<WalksController> logger;
-
-        public WalksController(IWalkRepository walkRepository, 
-            IMapper mapper, ILogger<WalksController> logger)
-        {
-            this.walkRepository = walkRepository;
-            this.mapper = mapper;
-            this.logger = logger;
-        }
-
         //Create Walks
         //Post: https://localhost:7192/api/Walks
         [HttpPost]
@@ -41,11 +29,11 @@ namespace Project_NZWalks.API.Controllers
             var walkDto = mapper.Map<WalkDto>(walkDomainModel);
 
             //Return Dto
-            return CreatedAtAction(nameof(GetByID), new { walkDto.Id }, walkDto);
+            return CreatedAtAction(nameof(GetById), new { walkDto.Id }, walkDto);
         }
 
         //Get All Walks
-        //Get: https://localhost:7192/api/Walks?filterOn_Or_sortby_Or_pagination
+        //Get: https://localhost:7192/api/Walks?filterOn_Or_sort_Or_pagination
         [HttpGet]
         public async Task<IActionResult> GetAll
             ([FromQuery] string? filterOn, [FromQuery] string? filterQuery,
@@ -72,7 +60,7 @@ namespace Project_NZWalks.API.Controllers
         //Get: https://localhost:7192/api/Walks/ID
         [HttpGet]
         [Route("{id:Guid}")]
-        public async Task<IActionResult> GetByID([FromRoute] Guid id)
+        public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
             //Check if Domain Exist
             var walkDomainModel = await walkRepository.GetByIDAsync(id);
@@ -100,7 +88,7 @@ namespace Project_NZWalks.API.Controllers
             //Convert Dto to Domain Model
             var walkDomainModel = mapper.Map<Walk>(updateWalkRequestDto);
 
-            //Update Walk & Return if Walk Doesnot Exist
+            //Update Walk & Return if Walk Doesn't Exist
             var updatedWalkDomain = await walkRepository.UpdateAsync(id, walkDomainModel);
             if (updatedWalkDomain == null)
             {
@@ -121,7 +109,7 @@ namespace Project_NZWalks.API.Controllers
         [Route("{id:Guid}")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            //Delete Walk & Return if Walk Doesnot Exist
+            //Delete Walk & Return if Walk Doesn't Exist
             var deletedWalkDomain = await walkRepository.DeleteAsync(id);
             if (deletedWalkDomain == null)
             {

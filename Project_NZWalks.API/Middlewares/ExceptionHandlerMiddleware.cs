@@ -1,21 +1,11 @@
-﻿using Serilog.Data;
-using System.Net;
+﻿using System.Net;
 
 namespace Project_NZWalks.API.Middlewares
 {
-    public class ExceptionHandlerMiddleware
+    public class ExceptionHandlerMiddleware(
+        ILogger<ExceptionHandlerMiddleware> logger,
+        RequestDelegate next)
     {
-        private readonly ILogger<ExceptionHandlerMiddleware> logger;
-        private readonly RequestDelegate next;
-
-        public ExceptionHandlerMiddleware
-            (ILogger<ExceptionHandlerMiddleware> logger,
-            RequestDelegate next)
-        {
-            this.logger = logger;
-            this.next = next;
-        }
-
         public async Task InvokeAsync(HttpContext httpContext)
         {
             try
@@ -28,7 +18,7 @@ namespace Project_NZWalks.API.Middlewares
                 //Log this exception
                 logger.LogError(ex, $"{errorId} : {ex.Message}");
 
-                //return custome error response
+                //return custom error response
                 httpContext.Response.StatusCode =
                     (int)HttpStatusCode.InternalServerError;
                 httpContext.Response.ContentType = "application/json";

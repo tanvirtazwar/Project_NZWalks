@@ -11,7 +11,7 @@ using Project_NZWalks.API.Data;
 
 namespace Project_NZWalks.API.Migrations
 {
-    [DbContext(typeof(NZWalksDbContext))]
+    [DbContext(typeof(NzWalksDbContext))]
     [Migration("20240529164125_Migration After Updating ID to Id")]
     partial class MigrationAfterUpdatingIDtoId
     {

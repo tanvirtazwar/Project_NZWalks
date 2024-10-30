@@ -5,15 +5,9 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Project_NZWalks.API
 {
-    public class ConfigureSwaggerOptions : IConfigureNamedOptions<SwaggerGenOptions>
+    public class ConfigureSwaggerOptions(IApiVersionDescriptionProvider apiVersionDescriptionProvider)
+        : IConfigureNamedOptions<SwaggerGenOptions>
     {
-        private readonly IApiVersionDescriptionProvider apiVersionDescriptionProvider;
-
-        public ConfigureSwaggerOptions(IApiVersionDescriptionProvider apiVersionDescriptionProvider)
-        {
-            this.apiVersionDescriptionProvider = apiVersionDescriptionProvider;
-        }
-
         public void Configure(string? name, SwaggerGenOptions options)
         {
             Configure(options);

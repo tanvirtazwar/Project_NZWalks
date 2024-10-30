@@ -4,13 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Project_NZWalks.API.Data
 {
-    public class NZWalksAuthDbContext : IdentityDbContext
+    public class NzWalksAuthDbContext(DbContextOptions<NzWalksAuthDbContext> options) : IdentityDbContext(options)
     {
-        public NZWalksAuthDbContext(DbContextOptions<NZWalksAuthDbContext> options) 
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
