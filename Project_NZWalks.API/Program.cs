@@ -88,10 +88,10 @@ builder.Services.AddSwaggerGen
 );
 
 builder.Services.AddDbContext<NzWalksDbContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("NZWalksConnectionString")));
+options.UseNpgsql(builder.Configuration.GetConnectionString("NZWalksConnectionString")));
 
 builder.Services.AddDbContext<NzWalksAuthDbContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("NZWalksAuthConnectionString")));
+options.UseNpgsql(builder.Configuration.GetConnectionString("NZWalksAuthConnectionString")));
 
 builder.Services.AddScoped<IRegionRepository, SQLRegionRepository>();
 builder.Services.AddScoped<IWalkRepository, SQLWalkRepository>();
