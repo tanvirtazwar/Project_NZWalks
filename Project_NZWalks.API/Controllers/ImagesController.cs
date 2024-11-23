@@ -15,25 +15,25 @@ namespace Project_NZWalks.API.Controllers
         public async Task<IActionResult> Upload([FromForm] ImageUploadRequestDto imageUploadRequestDto)
         {
             ValidateFileUpload(imageUploadRequestDto);
-            if(ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                //Convert Dto to Domain Model
-                var imageDomainModel = new Image
-                {
-                    File = imageUploadRequestDto.File,
-                    FileName = imageUploadRequestDto.FileName,
-                    FileDescription = imageUploadRequestDto.FileDescription,
-                    FileExtensions = Path.GetExtension(imageUploadRequestDto.File.FileName),
-                    FileSizeInBytes = imageUploadRequestDto.File.Length
-                };
-
-                //Use Repository to Upload Image
-                await imageRepository.UploadAsync(imageDomainModel);
-
-                return Ok(imageDomainModel);
+                return BadRequest(ModelState);
             }
 
-            return BadRequest(ModelState);
+            //Convert Dto to Domain Model
+            var imageDomainModel = new Image
+            {
+                File = imageUploadRequestDto.File,
+                FileName = imageUploadRequestDto.FileName,
+                FileDescription = imageUploadRequestDto.FileDescription,
+                FileExtensions = Path.GetExtension(imageUploadRequestDto.File.FileName),
+                FileSizeInBytes = imageUploadRequestDto.File.Length
+            };
+
+            //Use Repository to Upload Image
+            await imageRepository.UploadAsync(imageDomainModel);
+
+            return Ok(imageDomainModel);
         }
 
         private void ValidateFileUpload(ImageUploadRequestDto imageUploadRequestDto)

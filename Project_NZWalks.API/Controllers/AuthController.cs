@@ -45,27 +45,21 @@ namespace Project_NZWalks.API.Controllers
         {
             var user = await userManager.FindByEmailAsync(loginRequestDto.Username);
 
-            if (user != null)
+            if (user == null) return BadRequest("Username or Password incorrect");
+            var checkPasswordResult = await userManager.CheckPasswordAsync(user, loginRequestDto.Password);
+
+            if (!checkPasswordResult) return BadRequest("Username or Password incorrect");
+            //Get Roles
+            var roles = await userManager.GetRolesAsync(user);
+            if (roles == null!) return BadRequest("Username or Password incorrect");
+            //Create Token
+            var jwtToken = tokenRepository.CreateJWTToken(user, roles.ToList());
+            var loginResponse = new LoginResponseDto
             {
-                var checkPasswordResult = await userManager.CheckPasswordAsync(user, loginRequestDto.Password);
+                JwtToken = jwtToken
+            };
+            return Ok(loginResponse);
 
-                if (checkPasswordResult)
-                {
-                    //Get Roles
-                    var roles = await userManager.GetRolesAsync(user);
-                    if (roles == null!) return BadRequest("Username or Password incorrect");
-                    //Create Token
-                    var jwtToken = tokenRepository.CreateJWTToken(user, roles.ToList());
-                    var loginResponse = new LoginResponseDto
-                    {
-                        JwtToken = jwtToken
-                    };
-                    return Ok(loginResponse);
-
-                }
-            }
-
-            return BadRequest("Username or Password incorrect");
         }
 
     }

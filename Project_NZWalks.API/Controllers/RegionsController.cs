@@ -10,8 +10,8 @@ namespace Project_NZWalks.API.Controllers
     // https://localhost:7192/api/Regions
     [Route("api/[controller]")]
     [ApiController]
-    public class RegionsController(
-        IRegionRepository regionRepository,
+    public class RegionsController
+        (IRegionRepository regionRepository,
         IMapper mapper)
         : ControllerBase
     {

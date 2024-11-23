@@ -3,20 +3,9 @@ using Project_NZWalks.API.Models.Domain;
 
 namespace Project_NZWalks.API.Repositories
 {
-    public class LocalImageRepository : IImageRepository
+    public class LocalImageRepository(IWebHostEnvironment webHostEnvironment,
+        IHttpContextAccessor httpContextAccessor, NzWalksDbContext dbContext) : IImageRepository
     {
-        private readonly IWebHostEnvironment webHostEnvironment;
-        private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly NzWalksDbContext dbContext;
-
-        public LocalImageRepository(IWebHostEnvironment webHostEnvironment,
-            IHttpContextAccessor httpContextAccessor, NzWalksDbContext dbContext)
-        {
-            this.webHostEnvironment = webHostEnvironment;
-            this.httpContextAccessor = httpContextAccessor;
-            this.dbContext = dbContext;
-        }
-
         public async Task<Image> UploadAsync(Image image)
         {
             var localFilePath = Path.Combine(webHostEnvironment.ContentRootPath,
