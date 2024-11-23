@@ -4,43 +4,42 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Project_NZWalks.API.Repositories
+namespace Project_NZWalks.API.Repositories;
+
+public class TokenRepository : ITokenRepository
 {
-    public class TokenRepository : ITokenRepository
+    private readonly IConfiguration configuration;
+
+    public TokenRepository(IConfiguration configuration)
     {
-        private readonly IConfiguration configuration;
+        this.configuration = configuration;
+    }
 
-        public TokenRepository(IConfiguration configuration)
+    public string CreateJWTToken(IdentityUser user, List<string> roles)
+    {
+        //Create claim
+        var claims = new List<Claim>();
+        if (user.Email != null)
         {
-            this.configuration = configuration;
+            claims.Add(new Claim(ClaimTypes.Email, user.Email));
+        }
+        foreach (var role in roles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role));
         }
 
-        public string CreateJWTToken(IdentityUser user, List<string> roles)
-        {
-            //Create claim
-            var claims = new List<Claim>();
-            if (user.Email != null)
-            {
-                claims.Add(new Claim(ClaimTypes.Email, user.Email));
-            }
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var token = new JwtSecurityToken
+            (
+            configuration["Jwt:Issuer"],
+            configuration["Jwt:Audience"],
+            claims,
+            expires: DateTime.Now.AddMinutes(40),
+            signingCredentials: credentials
+            );
 
-            var token = new JwtSecurityToken
-                (
-                configuration["Jwt:Issuer"],
-                configuration["Jwt:Audience"],
-                claims,
-                expires: DateTime.Now.AddMinutes(40),
-                signingCredentials: credentials
-                );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

@@ -1,5 +1,3 @@
-using Asp.Versioning;
-using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -31,51 +29,35 @@ builder.Services.AddHttpContextAccessor();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen
-(
-    options =>
+builder.Services.AddSwaggerGen(options => 
+{ 
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "NZ Walks API", Version = "v1" });
+    options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
     {
-        options.SwaggerDoc
-        (
-            "v1", new OpenApiInfo
-            {
-                Title = "NZ Walks API",
-                Version = "v1"
-            }
-        );
-        options.AddSecurityDefinition
-        (
-            JwtBearerDefaults.AuthenticationScheme,
+        In = ParameterLocation.Header,
+        Description = "Please enter a valid token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = JwtBearerDefaults.AuthenticationScheme
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement 
+    {
+        {
             new OpenApiSecurityScheme
             {
-                Name = "Authorization",
-                In = ParameterLocation.Header,
-                Type = SecuritySchemeType.ApiKey,
-                Scheme = JwtBearerDefaults.AuthenticationScheme
-            }
-        );
-        options.AddSecurityRequirement
-        (
-            new OpenApiSecurityRequirement
-            {
-            {
-                new OpenApiSecurityScheme
+                Reference = new OpenApiReference
                 {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = JwtBearerDefaults.AuthenticationScheme
-                    },
-                    Scheme = "Oauth2",
-                    Name = JwtBearerDefaults.AuthenticationScheme,
-                    In = ParameterLocation.Header
+                    Type = ReferenceType.SecurityScheme,
+                    Id = JwtBearerDefaults.AuthenticationScheme
                 },
-                new List<string>()
-            }
-            }
-        );
-    }
-);
+                Scheme = "Oauth2",
+                Name = JwtBearerDefaults.AuthenticationScheme,
+                In = ParameterLocation.Header
+            },
+            new List<string>()
+        }
+    });
+});
 
 builder.Services.AddDbContext<NzWalksDbContext>(options =>
 options.UseNpgsql(builder.Configuration.GetConnectionString("NZWalksConnectionString")));
@@ -106,11 +88,10 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequiredUniqueChars = 1;
 });
 
-var secret = builder.Configuration["Jwt:Key"];  // Get key from appsettings.json
-
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
   .AddJwtBearer(options =>
   {
+      var secret = builder.Configuration["Jwt:Key"];  // Get key from appsettings.json
       options.TokenValidationParameters = new TokenValidationParameters
       {
           ValidateIssuer = true,

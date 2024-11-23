@@ -1,7 +1,6 @@
-﻿namespace Project_NZWalks.API.Models.DTO
+﻿namespace Project_NZWalks.API.Models.DTO;
+
+public class LoginResponseDto
 {
-    public class LoginResponseDto
-    {
-        public string JwtToken { get; set; }
-    }
+    public string JwtToken { get; set; }
 }

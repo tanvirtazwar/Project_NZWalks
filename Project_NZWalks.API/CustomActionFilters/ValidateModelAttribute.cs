@@ -1,16 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Project_NZWalks.API.CustomActionFilters
+namespace Project_NZWalks.API.CustomActionFilters;
+
+public class ValidateModel : ActionFilterAttribute
 {
-    public class ValidateModel : ActionFilterAttribute
+    public override void OnActionExecuted(ActionExecutedContext context)
     {
-        public override void OnActionExecuted(ActionExecutedContext context)
+        if(context.ModelState.IsValid == false)
         {
-            if(context.ModelState.IsValid == false)
-            {
-                context.Result = new BadRequestResult();
-            }
+            context.Result = new BadRequestResult();
         }
     }
 }

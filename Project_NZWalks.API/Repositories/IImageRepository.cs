@@ -1,9 +1,8 @@
 ﻿using Project_NZWalks.API.Models.Domain;
 
-namespace Project_NZWalks.API.Repositories
+namespace Project_NZWalks.API.Repositories;
+
+public interface IImageRepository
 {
-    public interface IImageRepository
-    {
-        Task<Image> UploadAsync(Image image);
-    }
+    Task<Image> UploadAsync(Image image);
 }

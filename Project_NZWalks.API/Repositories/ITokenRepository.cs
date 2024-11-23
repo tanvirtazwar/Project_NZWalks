@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace Project_NZWalks.API.Repositories
+namespace Project_NZWalks.API.Repositories;
+
+public interface ITokenRepository
 {
-    public interface ITokenRepository
-    {
-        string CreateJWTToken(IdentityUser user, List<string> roles);
-    }
+    string CreateJWTToken(IdentityUser user, List<string> roles);
 }
