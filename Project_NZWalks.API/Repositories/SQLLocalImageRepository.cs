@@ -8,7 +8,7 @@ namespace Project_NZWalks.API.Repositories;
 public class SQLLocalImageRepository
     (IWebHostEnvironment webHostEnvironment,
     IHttpContextAccessor httpContextAccessor, 
-    NzWalksDbContext dbContext) 
+    NZWalksDbContext dbContext) 
     : IImageRepository
 {
     public async Task<Image> UploadAsync(Image image)

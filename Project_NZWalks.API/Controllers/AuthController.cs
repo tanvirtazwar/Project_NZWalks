@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Project_NZWalks.API.Models.DTO;
+using Project_NZWalks.API.Models.User;
 using Project_NZWalks.API.Repositories;
 
 namespace Project_NZWalks.API.Controllers;
@@ -8,7 +10,8 @@ namespace Project_NZWalks.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class AuthController
-    (UserManager<IdentityUser> userManager,
+    (UserManager<AppUser> userManager,
+    SignInManager<AppUser> signInManager,
     ITokenRepository tokenRepository,
     IUserAccountRepository userAccountRepository)
     : ControllerBase
@@ -20,27 +23,31 @@ public class AuthController
     {
         try
         {
-            var identityUser = new IdentityUser
+            if (!ModelState.IsValid)
             {
-                UserName = registerRequestDto.Email,
+                return BadRequest(ModelState);
+            }
+            var appUser = new AppUser
+            {
+                UserName = registerRequestDto.UserName,
                 Email = registerRequestDto.Email,
             };
 
             var identityResult =
-                await userManager.CreateAsync(identityUser, registerRequestDto.Password);
+                await userManager.CreateAsync(appUser, registerRequestDto.Password);
 
             if (!identityResult.Succeeded)
             {
                 return BadRequest("Something went wrong");
             }
             //Add role to the user
-            if (registerRequestDto.Roles == null! || registerRequestDto.Roles.Length == 0)
+            if (string.IsNullOrEmpty(registerRequestDto.Role))
             {
                 return BadRequest("Something went wrong");
             }
 
             identityResult =
-                await userManager.AddToRolesAsync(identityUser, registerRequestDto.Roles);
+                await userManager.AddToRoleAsync(appUser, registerRequestDto.Role);
 
             if (!identityResult.Succeeded)
             {
@@ -61,17 +68,18 @@ public class AuthController
     [Route("Login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequestDto)
     {
-        var user = await userManager.FindByEmailAsync(loginRequestDto.Email);
+        var user = await userManager.Users.FirstOrDefaultAsync(appUser =>
+            appUser.Email == loginRequestDto.Email);
 
         if (user == null)
         {
             return BadRequest("UserEmail or Password incorrect");
         }
 
-        var checkPasswordResult = 
-            await userManager.CheckPasswordAsync(user, loginRequestDto.Password);
+        var passwordResult = await signInManager
+            .CheckPasswordSignInAsync(user, loginRequestDto.Password, false);
 
-        if (!checkPasswordResult)
+        if (!passwordResult.Succeeded)
         {
             return BadRequest("UserEmail or Password incorrect");
         }
@@ -84,7 +92,7 @@ public class AuthController
         }
 
         //Create Token
-        var jwtToken = tokenRepository.CreateJWTToken(user, [.. roles]);
+        var jwtToken = tokenRepository.CreateJWTToken(user, roles.ToList());
         var loginResponse = new LoginResponseDto
         {
             JwtToken = jwtToken

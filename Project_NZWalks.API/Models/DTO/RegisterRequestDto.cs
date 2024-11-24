@@ -5,6 +5,8 @@ namespace Project_NZWalks.API.Models.DTO;
 public class RegisterRequestDto
 {
     [Required]
+    public string? UserName { get; set; }
+    [Required]
     [DataType(DataType.EmailAddress)]
     public string Email {  get; set; }
 
@@ -13,5 +15,5 @@ public class RegisterRequestDto
     public string Password { get; set; }
 
     [Required]
-    public string[] Roles { get; set; }
+    public string Role { get; set; }
 }

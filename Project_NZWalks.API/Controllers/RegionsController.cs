@@ -19,7 +19,6 @@ public class RegionsController
     //POST: https://localhost:7192/api/Regions
     [HttpPost]
     [ValidateModel]
-    //[Authorize(Roles = "Writer")]
     public async Task<IActionResult> Create([FromBody] AddRegionRequestDto addRegionRequestDto)
     {
 
@@ -40,7 +39,6 @@ public class RegionsController
     //GET ALL REGIONS
     //GET: https://localhost:7192/api/Regions
     [HttpGet]
-    //[Authorize(Roles = "Reader")]
     public async Task<IActionResult> GetAll()
     {
         //Get Data From Database as Domain models
@@ -57,7 +55,6 @@ public class RegionsController
     //GET: https://localhost:7192/api/Regions/ID
     [HttpGet]
     [Route("{id:Guid}")]
-    //[Authorize(Roles = "Reader")]
     public async Task<IActionResult> GetById([FromRoute] Guid id)
     {
         //Check if Domain Exist
@@ -79,7 +76,6 @@ public class RegionsController
     [HttpPut]
     [Route("{id:Guid}")]
     [ValidateModel]
-    //[Authorize(Roles = "Writer")]
     public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto)
     {
 
@@ -105,7 +101,6 @@ public class RegionsController
     //DELETE: https://localhost:7192/api/Regions/ID
     [HttpDelete]
     [Route("{id:Guid}")]
-    //[Authorize(Roles = "Writer")]
     public async Task<IActionResult> Delete([FromRoute] Guid id)
     {
         //Check if Dto Exist & Use Domain model to Delete Region

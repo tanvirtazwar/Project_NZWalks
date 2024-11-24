@@ -11,6 +11,7 @@ namespace Project_NZWalks.API.Controllers;
 // /api/walks
 [Route("api/[controller]")]
 [ApiController]
+
 public class WalksController(
     IWalkRepository walkRepository,
     IMapper mapper) : ControllerBase

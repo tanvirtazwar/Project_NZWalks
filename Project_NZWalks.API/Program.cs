@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using Project_NZWalks.API.Data;
 using Project_NZWalks.API.Mappings;
 using Project_NZWalks.API.Middlewares;
+using Project_NZWalks.API.Models.User;
 using Project_NZWalks.API.Repositories;
 using Serilog;
 using System.Text;
@@ -29,41 +30,75 @@ builder.Services.AddHttpContextAccessor();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options => 
-{ 
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "NZ Walks API", Version = "v1" });
-    options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(option =>
+{
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "NZWalks API", Version = "v1" });
+    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
         Description = "Please enter a valid token",
         Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = JwtBearerDefaults.AuthenticationScheme
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "Bearer"
     });
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement 
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
             {
                 Reference = new OpenApiReference
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = JwtBearerDefaults.AuthenticationScheme
-                },
-                Scheme = "Oauth2",
-                Name = JwtBearerDefaults.AuthenticationScheme,
-                In = ParameterLocation.Header
+                    Type=ReferenceType.SecurityScheme,
+                    Id="Bearer"
+                }
             },
-            new List<string>()
+            []
         }
     });
 });
 
-builder.Services.AddDbContext<NzWalksDbContext>(options =>
+builder.Services.AddDbContext<NZWalksDbContext>(options =>
 options.UseNpgsql(builder.Configuration.GetConnectionString("NZWalksConnectionString")));
 
-builder.Services.AddDbContext<NzWalksAuthDbContext>(options =>
+builder.Services.AddDbContext<NZWalksAuthDbContext>(options =>
 options.UseNpgsql(builder.Configuration.GetConnectionString("NZWalksAuthConnectionString")));
+
+
+builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredLength = 12;
+}).AddEntityFrameworkStores<NZWalksAuthDbContext>();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultSignOutScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    var secret = builder.Configuration["Jwt:SigningKey"];
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = !string.IsNullOrEmpty(secret) ?
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)) :
+            throw new ArgumentException("Jwt:Key is missing from appsettings.json")
+    };
+});
 
 builder.Services.AddScoped<IRegionRepository, SQLRegionRepository>();
 builder.Services.AddScoped<IWalkRepository, SQLWalkRepository>();
@@ -72,40 +107,6 @@ builder.Services.AddScoped<IUserAccountRepository, SQLUserAccountRepository>();
 builder.Services.AddScoped<IImageRepository, SQLLocalImageRepository>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
-
-builder.Services.AddIdentityCore<IdentityUser>()
-    .AddRoles<IdentityRole>()
-    .AddTokenProvider<DataProtectorTokenProvider<IdentityUser>>("NZWalks")
-    .AddEntityFrameworkStores<NzWalksAuthDbContext>()
-    .AddDefaultTokenProviders();
-
-builder.Services.Configure<IdentityOptions>(options =>
-{
-    options.Password.RequireDigit = false;
-    options.Password.RequireLowercase = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequiredLength = 6;
-    options.Password.RequiredUniqueChars = 1;
-});
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-  .AddJwtBearer(options =>
-  {
-      var secret = builder.Configuration["Jwt:Key"];  // Get key from appsettings.json
-      options.TokenValidationParameters = new TokenValidationParameters
-      {
-          ValidateIssuer = true,
-          ValidIssuer = builder.Configuration["Jwt:Issuer"],
-          ValidateAudience = true,
-          ValidAudience = builder.Configuration["Jwt:Audience"],
-          ValidateLifetime = true,
-          ValidateIssuerSigningKey = true,
-          IssuerSigningKey = !string.IsNullOrEmpty(secret) ?
-          new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)) :
-          throw new ArgumentException("Jwt:Key is missing from appsettings.json"),
-      };
-  });
 
 
 var app = builder.Build();
