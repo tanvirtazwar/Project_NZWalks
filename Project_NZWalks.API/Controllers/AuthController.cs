@@ -9,7 +9,8 @@ namespace Project_NZWalks.API.Controllers;
 [ApiController]
 public class AuthController
     (UserManager<IdentityUser> userManager,
-    ITokenRepository tokenRepository)
+    ITokenRepository tokenRepository,
+    IUserAccountRepository userAccountRepository)
     : ControllerBase
 {
     //Post :api/Auth/Register
@@ -21,8 +22,8 @@ public class AuthController
         {
             var identityUser = new IdentityUser
             {
-                UserName = registerRequestDto.Username,
-                Email = registerRequestDto.Username,
+                UserName = registerRequestDto.UserEmail,
+                Email = registerRequestDto.UserEmail,
             };
 
             var identityResult =
@@ -64,7 +65,7 @@ public class AuthController
 
         if (user == null)
         {
-            return BadRequest("Username or Password incorrect");
+            return BadRequest("UserEmail or Password incorrect");
         }
 
         var checkPasswordResult = 
@@ -72,14 +73,14 @@ public class AuthController
 
         if (!checkPasswordResult)
         {
-            return BadRequest("Username or Password incorrect");
+            return BadRequest("UserEmail or Password incorrect");
         }
 
         //Get Roles
         var roles = await userManager.GetRolesAsync(user);
         if (roles == null!)
         {
-            return BadRequest("Username or Password incorrect");
+            return BadRequest("UserEmail or Password incorrect");
         }
 
         //Create Token
@@ -92,4 +93,50 @@ public class AuthController
 
     }
 
+    // POST: api/Auth/UpdatePassword
+    [HttpPost]
+    [Route("UpdatePassword")]
+    public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordRequestDto updatePasswordRequestDto)
+    {
+        try
+        {
+            var identityResult = await userAccountRepository.UpdatePasswordAsync(
+                updatePasswordRequestDto.Username,
+                updatePasswordRequestDto.CurrentPassword,
+                updatePasswordRequestDto.NewPassword);
+
+            if (!identityResult.Succeeded)
+            {
+                return BadRequest(identityResult.Errors.FirstOrDefault()?.Description);
+            }
+
+            return Ok("Password Updated Successfully");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+
+    [HttpPost]
+    [Route("DeleteUser")]
+    public async Task<IActionResult> DeleteUser([FromBody] DeletePasswordRequestDto deletePasswordRequest)
+    {
+        try
+        {
+            var identityResult = await userAccountRepository.DeleteUserAsync
+                (deletePasswordRequest.Username, deletePasswordRequest.Password);
+
+            if (!identityResult.Succeeded)
+            {
+                return BadRequest(identityResult.Errors.FirstOrDefault()?.Description);
+            }
+
+            return Ok("User Deleted Successfully");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
 }

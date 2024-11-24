@@ -100,7 +100,6 @@ public class WalksController(
 
         //Return Dto
         return Ok(updatedWalkDto);
-
     }
 
     //Delete Walk by ID

@@ -19,8 +19,8 @@
     </thead>
     <tbody>
         @foreach (var region in Model)
-    {
-        <tr>
+{
+    <tr>
                 <th>@region.Id</th>
                 <th>@region.Code</th>
                 <th>@region.Name</th>
@@ -29,6 +29,6 @@
                     asp-route-id="@region.Id" class="btn btn-light">Edit</a>
                 </th>
             </tr>
-    }
+}
     </tbody>
 </table>
