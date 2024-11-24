@@ -7,8 +7,8 @@ namespace Project_NZWalks.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthController(
-    UserManager<IdentityUser> userManager,
+public class AuthController
+    (UserManager<IdentityUser> userManager,
     ITokenRepository tokenRepository)
     : ControllerBase
 {
@@ -17,32 +17,42 @@ public class AuthController(
     [Route("Register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequestDto)
     {
-        var identityUser = new IdentityUser
+        try
         {
-            UserName = registerRequestDto.Username,
-            Email = registerRequestDto.Username,
-        };
+            var identityUser = new IdentityUser
+            {
+                UserName = registerRequestDto.Username,
+                Email = registerRequestDto.Username,
+            };
 
-        var identityResult = await userManager.CreateAsync(identityUser, registerRequestDto.Password);
+            var identityResult =
+                await userManager.CreateAsync(identityUser, registerRequestDto.Password);
 
-        if (!identityResult.Succeeded)
-        {
-            return BadRequest("Something went wrong");
+            if (!identityResult.Succeeded)
+            {
+                return BadRequest("Something went wrong");
+            }
+            //Add role to the user
+            if (registerRequestDto.Roles == null! || registerRequestDto.Roles.Length == 0)
+            {
+                return BadRequest("Something went wrong");
+            }
+
+            identityResult =
+                await userManager.AddToRolesAsync(identityUser, registerRequestDto.Roles);
+
+            if (!identityResult.Succeeded)
+            {
+                return BadRequest("Something went wrong");
+            }
+
+            return Ok("User was Registered. Please login.");
         }
-        //Add role to the user
-        if (registerRequestDto.Roles == null! || registerRequestDto.Roles.Length == 0)
+        catch (Exception e)
         {
-            return BadRequest("Something went wrong");
+
+            return StatusCode(500, e.Message);
         }
-        
-        identityResult = await userManager.AddToRolesAsync(identityUser, registerRequestDto.Roles);
-        
-        if (!identityResult.Succeeded)
-        {
-            return BadRequest("Something went wrong");
-        }
-        
-        return Ok("User was Registered. Please login.");
     }
 
     //Post :api/Auth/Login
@@ -52,13 +62,26 @@ public class AuthController(
     {
         var user = await userManager.FindByEmailAsync(loginRequestDto.Username);
 
-        if (user == null) return BadRequest("Username or Password incorrect");
-        var checkPasswordResult = await userManager.CheckPasswordAsync(user, loginRequestDto.Password);
+        if (user == null)
+        {
+            return BadRequest("Username or Password incorrect");
+        }
 
-        if (!checkPasswordResult) return BadRequest("Username or Password incorrect");
+        var checkPasswordResult = 
+            await userManager.CheckPasswordAsync(user, loginRequestDto.Password);
+
+        if (!checkPasswordResult)
+        {
+            return BadRequest("Username or Password incorrect");
+        }
+
         //Get Roles
         var roles = await userManager.GetRolesAsync(user);
-        if (roles == null!) return BadRequest("Username or Password incorrect");
+        if (roles == null!)
+        {
+            return BadRequest("Username or Password incorrect");
+        }
+
         //Create Token
         var jwtToken = tokenRepository.CreateJWTToken(user, roles.ToList());
         var loginResponse = new LoginResponseDto
