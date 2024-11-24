@@ -67,8 +67,9 @@ options.UseNpgsql(builder.Configuration.GetConnectionString("NZWalksAuthConnecti
 
 builder.Services.AddScoped<IRegionRepository, SQLRegionRepository>();
 builder.Services.AddScoped<IWalkRepository, SQLWalkRepository>();
-builder.Services.AddScoped<ITokenRepository, TokenRepository>();
-builder.Services.AddScoped<IImageRepository, LocalImageRepository>();
+builder.Services.AddScoped<ITokenRepository, SQLTokenRepository>();
+builder.Services.AddScoped<IUserAccountRepository, SQLUserAccountRepository>();
+builder.Services.AddScoped<IImageRepository, SQLLocalImageRepository>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
@@ -95,11 +96,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
       options.TokenValidationParameters = new TokenValidationParameters
       {
           ValidateIssuer = true,
+          ValidIssuer = builder.Configuration["Jwt:Issuer"],
           ValidateAudience = true,
+          ValidAudience = builder.Configuration["Jwt:Audience"],
           ValidateLifetime = true,
           ValidateIssuerSigningKey = true,
-          ValidIssuer = builder.Configuration["Jwt:Issuer"],
-          ValidAudience = builder.Configuration["Jwt:Audience"],
           IssuerSigningKey = !string.IsNullOrEmpty(secret) ?
           new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)) :
           throw new ArgumentException("Jwt:Key is missing from appsettings.json"),

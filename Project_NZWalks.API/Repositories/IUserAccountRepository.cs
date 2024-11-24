@@ -5,7 +5,7 @@ namespace Project_NZWalks.API.Repositories;
 public interface IUserAccountRepository
 {
     Task<IdentityResult> UpdatePasswordAsync
-        (string username, string currentPassword, string newPassword);
+        (string email, string currentPassword, string newPassword);
     Task<IdentityResult> DeleteUserAsync
-        (string username, string password);
+        (string email, string password);
 }

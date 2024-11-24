@@ -22,8 +22,8 @@ public class AuthController
         {
             var identityUser = new IdentityUser
             {
-                UserName = registerRequestDto.UserEmail,
-                Email = registerRequestDto.UserEmail,
+                UserName = registerRequestDto.Email,
+                Email = registerRequestDto.Email,
             };
 
             var identityResult =
@@ -61,7 +61,7 @@ public class AuthController
     [Route("Login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequestDto)
     {
-        var user = await userManager.FindByEmailAsync(loginRequestDto.Username);
+        var user = await userManager.FindByEmailAsync(loginRequestDto.Email);
 
         if (user == null)
         {
@@ -84,7 +84,7 @@ public class AuthController
         }
 
         //Create Token
-        var jwtToken = tokenRepository.CreateJWTToken(user, roles.ToList());
+        var jwtToken = tokenRepository.CreateJWTToken(user, [.. roles]);
         var loginResponse = new LoginResponseDto
         {
             JwtToken = jwtToken
@@ -96,12 +96,13 @@ public class AuthController
     // POST: api/Auth/UpdatePassword
     [HttpPost]
     [Route("UpdatePassword")]
-    public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordRequestDto updatePasswordRequestDto)
+    public async Task<IActionResult> UpdatePassword
+        ([FromBody] UpdatePasswordRequestDto updatePasswordRequestDto)
     {
         try
         {
             var identityResult = await userAccountRepository.UpdatePasswordAsync(
-                updatePasswordRequestDto.Username,
+                updatePasswordRequestDto.Email,
                 updatePasswordRequestDto.CurrentPassword,
                 updatePasswordRequestDto.NewPassword);
 
@@ -120,12 +121,13 @@ public class AuthController
 
     [HttpPost]
     [Route("DeleteUser")]
-    public async Task<IActionResult> DeleteUser([FromBody] DeletePasswordRequestDto deletePasswordRequest)
+    public async Task<IActionResult> DeleteUser
+        ([FromBody] DeletePasswordRequestDto deletePasswordRequest)
     {
         try
         {
             var identityResult = await userAccountRepository.DeleteUserAsync
-                (deletePasswordRequest.Username, deletePasswordRequest.Password);
+                (deletePasswordRequest.Email, deletePasswordRequest.Password);
 
             if (!identityResult.Succeeded)
             {

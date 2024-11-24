@@ -2,7 +2,7 @@
 
 namespace Project_NZWalks.API.Repositories;
 
-public class UserAccountRepository
+public class SQLUserAccountRepository
     (UserManager<IdentityUser> userManager) 
     : IUserAccountRepository
 {

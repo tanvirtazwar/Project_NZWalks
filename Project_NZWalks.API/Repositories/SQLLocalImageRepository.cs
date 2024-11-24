@@ -5,7 +5,7 @@ using Project_NZWalks.API.Models.DTO;
 
 namespace Project_NZWalks.API.Repositories;
 
-public class LocalImageRepository
+public class SQLLocalImageRepository
     (IWebHostEnvironment webHostEnvironment,
     IHttpContextAccessor httpContextAccessor, 
     NzWalksDbContext dbContext) 

@@ -5,7 +5,7 @@ namespace Project_NZWalks.API.Models.DTO
     public class DeletePasswordRequestDto
     {
         [Required]
-        public string Username { get; set; }
+        public string Email { get; set; }
 
         [Required]
         public string Password { get; set; }

@@ -6,7 +6,8 @@ using System.Text;
 
 namespace Project_NZWalks.API.Repositories;
 
-public class TokenRepository(IConfiguration configuration) : ITokenRepository
+public class SQLTokenRepository(IConfiguration configuration) 
+    : ITokenRepository
 {
     public string CreateJWTToken(IdentityUser user, List<string> roles)
     {

@@ -6,7 +6,7 @@ public class RegisterRequestDto
 {
     [Required]
     [DataType(DataType.EmailAddress)]
-    public string UserEmail {  get; set; }
+    public string Email {  get; set; }
 
     [Required]
     [DataType(DataType.Password)]
