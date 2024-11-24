@@ -11,12 +11,14 @@ public class SQLTokenRepository(IConfiguration configuration)
 {
     public string CreateJWTToken(IdentityUser user, List<string> roles)
     {
-        //Create claim
-        var claims = new List<Claim>();
-        if (user.Email != null)
+        // Create claims
+        var claims = new List<Claim>
         {
-            claims.Add(new Claim(ClaimTypes.Email, user.Email));
-        }
+            new Claim(ClaimTypes.NameIdentifier, user.Id), // Add UserId
+            new Claim(ClaimTypes.Name, user.UserName!), // Add Username
+            new Claim(ClaimTypes.Email, user.Email!) // Add Email
+        };
+
         foreach (var role in roles)
         {
             claims.Add(new Claim(ClaimTypes.Role, role));
@@ -25,15 +27,15 @@ public class SQLTokenRepository(IConfiguration configuration)
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var token = new JwtSecurityToken
-            (
+        var token = new JwtSecurityToken(
             configuration["Jwt:Issuer"],
             configuration["Jwt:Audience"],
             claims,
             expires: DateTime.Now.AddMinutes(40),
             signingCredentials: credentials
-            );
+        );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
 }

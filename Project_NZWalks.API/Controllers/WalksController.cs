@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Project_NZWalks.API.CustomActionFilters;
 using Project_NZWalks.API.Models.Domain;
 using Project_NZWalks.API.Models.DTO;
+using Project_NZWalks.API.Querying;
 using Project_NZWalks.API.Repositories;
 
 namespace Project_NZWalks.API.Controllers;
@@ -35,18 +36,10 @@ public class WalksController(
     //Get All Walks
     //Get: https://localhost:7192/api/Walks?filterOn_Or_sort_Or_pagination
     [HttpGet]
-    public async Task<IActionResult> GetAll
-        ([FromQuery] string? filterOn, [FromQuery] string? filterQuery,
-        [FromQuery] bool? filterOnLength, [FromQuery] double? filterDistanceUpper,
-        [FromQuery] double? filterDistanceLower,[FromQuery] string? sortBy,
-        [FromQuery] bool? isAscending, [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 1000)
+    public async Task<IActionResult> GetAll([FromQuery] QueryWalks query)
     {
         //Get Data From Database as Domain models
-        var walksDomainModel = await walkRepository.GetAllAsync
-            (filterOn, filterQuery, filterOnLength ?? false,
-            filterDistanceUpper, filterDistanceLower,sortBy,
-            isAscending ?? true, pageNumber, pageSize);
+        var walksDomainModel = await walkRepository.GetAllAsync(query);
 
         //Map Domain Models to DTOs
         var walksDto = mapper.Map<List<WalkDto>>(walksDomainModel);

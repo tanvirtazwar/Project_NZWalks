@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Project_NZWalks.API.Data;
 using Project_NZWalks.API.Models.Domain;
+using Project_NZWalks.API.Querying;
 
 namespace Project_NZWalks.API.Repositories;
 
@@ -20,65 +21,27 @@ public class SQLWalkRepository : IWalkRepository
         return walk;
     }
 
-    public async Task<List<Walk>> GetAllAsync
-        (
-        string? filterOn = null, string? filterQuery = null,
-        bool filterOnLength = false, double? filterDistanceUpper = null,
-        double? filterDistanceLower = null, 
-        string? sortBy = null, bool isAscending = true, 
-        int pageNumber = 1, int pageSize = 1000
-        )
+    public Task<List<Walk>> GetAllAsync(QueryWalks query)
     {
-        var walks = dbContext.Walks.Include("Difficulty").Include("Region");
+        var walks = dbContext.Walks.Include("Difficulty").Include("Region").AsQueryable();
 
-        //Filtering
+        walks = string.IsNullOrEmpty(query.WalksName)? walks 
+            : walks.Where(walk => walk.Name.Contains(query.WalksName));
+        walks = string.IsNullOrEmpty(query.RegionName) ? walks
+            : walks.Where(walk => walk.Region.Name.Contains(query.RegionName));
+        walks = string.IsNullOrEmpty(query.DifficulryLevel) ? walks
+            : walks.Where(walk => walk.Difficulty.Name.Contains(query.DifficulryLevel));
 
-        if (string.IsNullOrWhiteSpace(filterOn) == false &&
-            string.IsNullOrWhiteSpace(filterQuery) == false)
+        if (query.SortByDistance)
         {
-            if (filterOn.Equals("Name", StringComparison.OrdinalIgnoreCase))
-            {
-                walks = walks.Where(x => x.Name.Contains(filterQuery));
-            }
-            else if (filterOn.Equals("Description", StringComparison.OrdinalIgnoreCase))
-            {
-                walks = walks.Where(x => x.Description.Contains(filterQuery));
-            }
-        }
-        if (filterOnLength)
-        {
-            if (filterDistanceUpper is not null && filterDistanceLower is not null 
-                && filterDistanceUpper >= filterDistanceLower && filterDistanceLower >= 0)
-            {
-                walks = walks.Where(x => x.LengthInKm <= filterDistanceUpper 
-                && x.LengthInKm >= filterDistanceLower);
-            }
+            walks = query.IsDescending? walks.OrderByDescending(walk => walk.LengthInKm) 
+                : walks.OrderBy(walk => walk.LengthInKm);
         }
 
-        //Sorting
-        if (string.IsNullOrWhiteSpace(sortBy) == false)
-        {
-            if(sortBy.Equals("Name", StringComparison.OrdinalIgnoreCase))
-            {
-                walks = isAscending? walks.OrderBy(x => x.Name):
-                    walks.OrderByDescending(x => x.Name);
-            }
-            else if (sortBy.Equals("Description", StringComparison.OrdinalIgnoreCase))
-            {
-                walks = isAscending ? walks.OrderBy(x => x.Description) :
-                    walks.OrderByDescending(x => x.Description);
-            }
-            else if (sortBy.Equals("LengthInKm", StringComparison.OrdinalIgnoreCase))
-            {
-                walks = isAscending ? walks.OrderBy(x => x.LengthInKm) :
-                    walks.OrderByDescending(x => x.LengthInKm);
-            }
-        }
+        var skipNumber = (query.PageNumber - 1) * query.PageSize;
 
-        //Pagination
-        var skipResults =(pageNumber - 1)*pageSize;
-
-        return await walks.Skip(skipResults).Take(pageSize).ToListAsync();
+        return walks.Skip(skipNumber)
+                .Take(query.PageSize).ToListAsync();
     }
 
     public async Task<Walk?> GetByIDAsync(Guid id)
