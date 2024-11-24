@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Project_NZWalks.API.Models.User;
+using System.Security.Claims;
 
 namespace Project_NZWalks.API.Repositories;
 
 public class SQLUserAccountRepository
-    (UserManager<IdentityUser> userManager) 
+    (UserManager<AppUser> userManager) 
     : IUserAccountRepository
 {
     public async Task<IdentityResult> UpdatePasswordAsync
@@ -41,4 +43,5 @@ public class SQLUserAccountRepository
 
         return await userManager.DeleteAsync(user);
     }
+
 }

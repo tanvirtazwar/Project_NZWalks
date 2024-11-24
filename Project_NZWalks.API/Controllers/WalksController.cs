@@ -1,29 +1,37 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Project_NZWalks.API.CustomActionFilters;
 using Project_NZWalks.API.Models.Domain;
 using Project_NZWalks.API.Models.DTO;
+using Project_NZWalks.API.Models.User;
 using Project_NZWalks.API.Querying;
 using Project_NZWalks.API.Repositories;
+using System.Security.Claims;
 
 namespace Project_NZWalks.API.Controllers;
 
 // /api/walks
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 
 public class WalksController(
     IWalkRepository walkRepository,
-    IMapper mapper) : ControllerBase
+    IMapper mapper) 
+    : ControllerBase
 {
     //Create Walks
     //Post: https://localhost:7192/api/Walks
     [HttpPost]
     [ValidateModel]
+    [Authorize(Roles ="Writer")]
     public async Task<IActionResult> Create([FromBody] AddWalkRequestDto addWalkRequestDto)
     {
         // Convert DTO to Domain model
         var walkDomainModel = mapper.Map<Walk>(addWalkRequestDto);
+
         //Use a Domain model to create Walk
         await walkRepository.CreateAsync(walkDomainModel);
 
@@ -75,6 +83,7 @@ public class WalksController(
     [HttpPut]
     [Route("{id:Guid}")]
     [ValidateModel]
+    [Authorize(Roles = "Writer")]
     public async Task<IActionResult> Update([FromRoute] Guid id,
         [FromBody] UpdateWalkRequestDto updateWalkRequestDto)
     {
@@ -100,6 +109,7 @@ public class WalksController(
     //Delete: https://localhost:7192/api/Walks/ID
     [HttpDelete]
     [Route("{id:Guid}")]
+    [Authorize(Roles = "Writer")]
     public async Task<IActionResult> Delete([FromRoute] Guid id)
     {
         //Delete Walk & Return if Walk Doesn't Exist

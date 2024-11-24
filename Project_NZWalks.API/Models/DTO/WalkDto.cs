@@ -1,4 +1,6 @@
-﻿namespace Project_NZWalks.API.Models.DTO;
+﻿using Project_NZWalks.API.Models.User;
+
+namespace Project_NZWalks.API.Models.DTO;
 
 public class WalkDto
 {
@@ -7,6 +9,7 @@ public class WalkDto
     public string Description { get; set; }
     public double LengthInKm { get; set; }
     public string? WalkImageUrl { get; set; }
+    public string UserId { get; set; }
     public RegionDto Region { get; set; }
     public DifficultyDto Difficulty { get; set; }
 }

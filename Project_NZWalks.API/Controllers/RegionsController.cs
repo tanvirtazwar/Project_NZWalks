@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project_NZWalks.API.CustomActionFilters;
 using Project_NZWalks.API.Models.Domain;
@@ -10,6 +11,7 @@ namespace Project_NZWalks.API.Controllers;
 // https://localhost:7192/api/Regions
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class RegionsController
     (IRegionRepository regionRepository,
     IMapper mapper)

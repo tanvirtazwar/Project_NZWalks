@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Project_NZWalks.API.Models.DTO;
 using Project_NZWalks.API.Models.User;
 using Project_NZWalks.API.Repositories;
+using System.Security.Claims;
 
 namespace Project_NZWalks.API.Controllers;
 
@@ -143,6 +144,29 @@ public class AuthController
             }
 
             return Ok("User Deleted Successfully");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+
+    // GET: api/Auth/GetUserId
+    [HttpGet]
+    [Route("GetUserId")]
+    public IActionResult GetUserId()
+    {
+        try
+        {
+            // Retrieve the User ID from the claims
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User is not logged in or token is invalid.");
+            }
+
+            return Ok(new { UserId = userId });
         }
         catch (Exception ex)
         {

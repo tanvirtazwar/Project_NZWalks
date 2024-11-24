@@ -8,4 +8,5 @@ public interface IUserAccountRepository
         (string email, string currentPassword, string newPassword);
     Task<IdentityResult> DeleteUserAsync
         (string email, string password);
+
 }

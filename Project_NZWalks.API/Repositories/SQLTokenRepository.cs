@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
 using Project_NZWalks.API.Models.User;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -17,6 +16,7 @@ public class SQLTokenRepository(IConfiguration configuration)
         //Create claim
         List<Claim> claims =
         [
+            new(JwtRegisteredClaimNames.NameId, user.Id),
             new(JwtRegisteredClaimNames.Email, user.Email!),
             new(JwtRegisteredClaimNames.GivenName, user.UserName!)
         ];

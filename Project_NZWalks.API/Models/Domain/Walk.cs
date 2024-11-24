@@ -1,4 +1,6 @@
-﻿namespace Project_NZWalks.API.Models.Domain;
+﻿using Project_NZWalks.API.Models.User;
+
+namespace Project_NZWalks.API.Models.Domain;
 
 public class Walk
 {
@@ -7,6 +9,7 @@ public class Walk
     public string Description { get; set; }
     public double LengthInKm { get; set; }
     public string? WalkImageUrl { get; set; }
+    public string UserId { get; set; }
     public Guid DifficultyId { get; set; }
     public Guid RegionId { get; set; }
 

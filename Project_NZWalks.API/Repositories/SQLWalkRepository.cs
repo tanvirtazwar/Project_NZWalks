@@ -1,21 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Project_NZWalks.API.Data;
 using Project_NZWalks.API.Models.Domain;
+using Project_NZWalks.API.Models.User;
 using Project_NZWalks.API.Querying;
+using System.Security.Claims;
 
 namespace Project_NZWalks.API.Repositories;
 
-public class SQLWalkRepository : IWalkRepository
+public class SQLWalkRepository
+    (NZWalksDbContext dbContext,
+    IHttpContextAccessor httpContextAccessor) 
+    : IWalkRepository
 {
-    private readonly NZWalksDbContext dbContext;
-
-    public SQLWalkRepository(NZWalksDbContext dbContext)
-    {
-        this.dbContext = dbContext;
-    }
-
     public async Task<Walk> CreateAsync(Walk walk)
     {
+        walk.UserId = httpContextAccessor.HttpContext!.User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         await dbContext.Walks.AddAsync(walk);
         await dbContext.SaveChangesAsync();
         return walk;
@@ -55,6 +55,11 @@ public class SQLWalkRepository : IWalkRepository
         var existingWalk = await dbContext.Walks.FirstOrDefaultAsync(x => x.Id == id);
         if (existingWalk != null)
         {
+            if (existingWalk.UserId != httpContextAccessor.HttpContext!
+                .User.FindFirstValue(ClaimTypes.NameIdentifier))
+            {
+                return null;
+            }
             existingWalk.Name = walk.Name;
             existingWalk.Description = walk.Description;
             existingWalk.LengthInKm = walk.LengthInKm;
@@ -75,6 +80,11 @@ public class SQLWalkRepository : IWalkRepository
             Include("Region").FirstOrDefaultAsync(x => x.Id == id);
         if (existingWalk != null)
         {
+            if (existingWalk.UserId != httpContextAccessor.HttpContext!
+                .User.FindFirstValue(ClaimTypes.NameIdentifier))
+            {
+                return null;
+            }
             dbContext.Walks.Remove(existingWalk);
             await dbContext.SaveChangesAsync();
         }
