@@ -17,5 +17,6 @@ public class Image
 
     public long FileSizeInBytes { get; set; }
 
-    public string FilePath { get; set; }    
+    public string FilePath { get; set; }
+    public string UserId { get; set; }
 }

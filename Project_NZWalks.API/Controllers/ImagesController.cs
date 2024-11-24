@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Project_NZWalks.API.Models.Domain;
 using Project_NZWalks.API.Models.DTO;
 using Project_NZWalks.API.Repositories;
@@ -7,10 +8,12 @@ namespace Project_NZWalks.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class ImagesController(IImageRepository imageRepository) : ControllerBase
 {
     [HttpPost]
     [Route("Upload")]
+    [Authorize(Roles = "Writer")]
     public async Task<IActionResult> Upload([FromForm] ImageUploadRequestDto imageUploadRequestDto)
     {
         ValidateFileUpload(imageUploadRequestDto);
@@ -67,6 +70,7 @@ public class ImagesController(IImageRepository imageRepository) : ControllerBase
 
     [HttpPut]
     [Route("{id:guid}")]
+    [Authorize(Roles = "Writer")]
     public async Task<IActionResult> Update(Guid id, [FromBody] ImageUpdateRequestDto updateDto)
     {
         var updatedImage = await imageRepository.UpdateAsync(id, updateDto);
@@ -80,6 +84,7 @@ public class ImagesController(IImageRepository imageRepository) : ControllerBase
 
     [HttpDelete]
     [Route("{id:guid}")]
+    [Authorize(Roles = "Writer")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var isDeleted = await imageRepository.DeleteAsync(id);

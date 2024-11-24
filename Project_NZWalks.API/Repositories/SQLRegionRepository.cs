@@ -1,20 +1,18 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 using Project_NZWalks.API.Data;
 using Project_NZWalks.API.Models.Domain;
 
 namespace Project_NZWalks.API.Repositories;
 
-public class SQLRegionRepository : IRegionRepository
+public class SQLRegionRepository
+    (NZWalksDbContext dbContext,
+        IHttpContextAccessor httpContextAccessor) 
+    : IRegionRepository
 {
-    private readonly NZWalksDbContext dbContext;
-
-    public SQLRegionRepository(NZWalksDbContext dbContext)
-    {
-        this.dbContext = dbContext;
-    }
-
     public async Task<Region> CreateAsync(Region region)
     {
+        region.UserId = httpContextAccessor.HttpContext!.User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         await dbContext.Regions.AddAsync(region);
         await dbContext.SaveChangesAsync();
         return region;
@@ -38,6 +36,11 @@ public class SQLRegionRepository : IRegionRepository
         {
             return null;
         }
+        if (existingRegion.UserId != httpContextAccessor.HttpContext!
+                .User.FindFirstValue(ClaimTypes.NameIdentifier))
+        {
+            return null;
+        }
 
         existingRegion.Code = region.Code;
         existingRegion.Name = region.Name;
@@ -52,6 +55,11 @@ public class SQLRegionRepository : IRegionRepository
     {
         var existingRegion = await dbContext.Regions.FirstOrDefaultAsync(x => x.Id == id);
         if (existingRegion == null)
+        {
+            return null;
+        }
+        if (existingRegion.UserId != httpContextAccessor.HttpContext!
+                .User.FindFirstValue(ClaimTypes.NameIdentifier))
         {
             return null;
         }

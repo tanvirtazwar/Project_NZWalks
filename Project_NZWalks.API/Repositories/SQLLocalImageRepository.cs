@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 using Project_NZWalks.API.Data;
 using Project_NZWalks.API.Models.Domain;
 using Project_NZWalks.API.Models.DTO;
@@ -17,18 +18,19 @@ public class SQLLocalImageRepository
             "Images", $"{image.FileName}{image.FileExtensions}");
 
         //Upload Image to Local File
-        using var stream = new FileStream(localFilePath, FileMode.Create);
+        await using var stream = new FileStream(localFilePath, FileMode.Create);
         await image.File.CopyToAsync(stream);
 
         //Create URL path
         // http://localhost:1234/images/images.jpg
-        HttpContext? httpContext = httpContextAccessor.HttpContext!;
+        var httpContext = httpContextAccessor.HttpContext!;
         var urlFilePath = $"{httpContext.Request.Scheme}" +
             $"://{httpContext.Request.Host}" +
             $"{httpContext.Request.PathBase}" +
             $"/Images/{image.FileName}{image.FileExtensions}";
 
         image.FilePath = urlFilePath;
+        image.UserId = httpContextAccessor.HttpContext!.User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
         //Add Images to Image Table
         await dbContext.Images.AddAsync(image);
@@ -51,6 +53,11 @@ public class SQLLocalImageRepository
     {
         var image = await GetByIdAsync(id);
         if (image == null) return null;
+        if (image.UserId != httpContextAccessor.HttpContext!
+                .User.FindFirstValue(ClaimTypes.NameIdentifier))
+        {
+            return null;
+        }
 
         var filePath = Path.Combine(webHostEnvironment.ContentRootPath,
             "Images", $"{image.FileName}{image.FileExtensions}");
@@ -67,7 +74,7 @@ public class SQLLocalImageRepository
 
         image.FileName = updateDto.FileName ?? image.FileName;
         image.FileDescription = updateDto.FileDescription ?? image.FileDescription;
-        HttpContext? httpContext = httpContextAccessor.HttpContext!;
+        HttpContext httpContext = httpContextAccessor.HttpContext!;
         var urlFilePath = $"{httpContext.Request.Scheme}" +
             $"://{httpContext.Request.Host}" +
             $"{httpContext.Request.PathBase}" +
@@ -85,6 +92,11 @@ public class SQLLocalImageRepository
     {
         var image = await GetByIdAsync(id);
         if (image == null) return false;
+        if (image.UserId != httpContextAccessor.HttpContext!
+                .User.FindFirstValue(ClaimTypes.NameIdentifier))
+        {
+            return false;
+        }
 
         var filePath = Path.Combine(webHostEnvironment.ContentRootPath,
             "Images", $"{image.FileName}{image.FileExtensions}");
