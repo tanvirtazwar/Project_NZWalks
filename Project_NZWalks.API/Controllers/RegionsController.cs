@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Project_NZWalks.API.CustomActionFilters;
 using Project_NZWalks.API.Models.Domain;
 using Project_NZWalks.API.Models.DTO;
 using Project_NZWalks.API.Repositories;
@@ -20,10 +19,13 @@ public class RegionsController
     //POST to Create a new region
     //POST: https://localhost:7192/api/Regions
     [HttpPost]
-    [ValidateModel]
     [Authorize(Roles = "Writer")]
     public async Task<IActionResult> Create([FromBody] AddRegionRequestDto addRegionRequestDto)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
 
         //Convert DTO to Domain model
         var regionDomain = mapper.Map<Region>(addRegionRequestDto);
@@ -60,6 +62,10 @@ public class RegionsController
     [Route("{id:Guid}")]
     public async Task<IActionResult> GetById([FromRoute] Guid id)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         //Check if Domain Exist
         var regionDomain = await regionRepository.GetByIDAsync(id);
         if (regionDomain == null)
@@ -78,10 +84,13 @@ public class RegionsController
     //PUT: https://localhost:7192/api/Regions/ID
     [HttpPut]
     [Route("{id:Guid}")]
-    [ValidateModel]
     [Authorize(Roles = "Writer")]
     public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
 
         //Map to Domain Model
         var regionDomain = mapper.Map<Region>(updateRegionRequestDto);
@@ -108,6 +117,10 @@ public class RegionsController
     [Authorize(Roles = "Writer")]
     public async Task<IActionResult> Delete([FromRoute] Guid id)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         //Check if Dto Exist & Use Domain model to Delete Region
         var deletedRegionDomain = await regionRepository.DeleteAsync(id);
         if (deletedRegionDomain == null)

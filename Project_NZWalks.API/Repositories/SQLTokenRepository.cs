@@ -20,10 +20,7 @@ public class SQLTokenRepository(IConfiguration configuration)
             new(JwtRegisteredClaimNames.Email, user.Email!),
             new(JwtRegisteredClaimNames.GivenName, user.UserName!)
         ];
-        foreach (var role in roles)
-        {
-            claims.Add(new Claim(ClaimTypes.Role, role));
-        }
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
         SigningCredentials credentials =
             new(_key, SecurityAlgorithms.HmacSha512Signature);

@@ -5,7 +5,7 @@ namespace Project_NZWalks.API.Repositories;
 
 public interface IWalkRepository
 {
-    Task<Walk> CreateAsync(Walk walk);
+    Task<Walk?> CreateAsync(Walk walk);
 
     Task<List<Walk>> GetAllAsync (QueryWalks query);
 

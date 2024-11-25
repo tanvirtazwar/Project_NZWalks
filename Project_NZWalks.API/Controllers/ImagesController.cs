@@ -73,6 +73,10 @@ public class ImagesController(IImageRepository imageRepository) : ControllerBase
     [Authorize(Roles = "Writer")]
     public async Task<IActionResult> Update(Guid id, [FromBody] ImageUpdateRequestDto updateDto)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         var updatedImage = await imageRepository.UpdateAsync(id, updateDto);
         if (updatedImage == null)
         {

@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Project_NZWalks.API.Data;
 using Project_NZWalks.API.Models.Domain;
-using Project_NZWalks.API.Models.User;
 using Project_NZWalks.API.Querying;
 using System.Security.Claims;
 
@@ -13,8 +11,16 @@ public class SQLWalkRepository
     IHttpContextAccessor httpContextAccessor) 
     : IWalkRepository
 {
-    public async Task<Walk> CreateAsync(Walk walk)
+    public async Task<Walk?> CreateAsync(Walk walk)
     {
+        if (await dbContext.Regions.FirstOrDefaultAsync
+            (r => r.Id == walk.RegionId) == null 
+            || 
+            await dbContext.Difficulties.FirstOrDefaultAsync
+            (d => d.Id == walk.DifficultyId) == null)
+        {
+            return null;
+        }
         walk.UserId = httpContextAccessor.HttpContext!.User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         await dbContext.Walks.AddAsync(walk);
         await dbContext.SaveChangesAsync();
@@ -29,8 +35,8 @@ public class SQLWalkRepository
             : walks.Where(walk => walk.Name.Contains(query.WalksName));
         walks = string.IsNullOrEmpty(query.RegionName) ? walks
             : walks.Where(walk => walk.Region.Name.Contains(query.RegionName));
-        walks = string.IsNullOrEmpty(query.DifficulryLevel) ? walks
-            : walks.Where(walk => walk.Difficulty.Name.Contains(query.DifficulryLevel));
+        walks = string.IsNullOrEmpty(query.DifficultyLevel) ? walks
+            : walks.Where(walk => walk.Difficulty.Name.Contains(query.DifficultyLevel));
 
         if (query.SortByDistance)
         {
@@ -57,6 +63,14 @@ public class SQLWalkRepository
         {
             if (existingWalk.UserId != httpContextAccessor.HttpContext!
                 .User.FindFirstValue(ClaimTypes.NameIdentifier))
+            {
+                return null;
+            }
+            if (await dbContext.Regions.FirstOrDefaultAsync
+            (r => r.Id == walk.RegionId) == null
+            ||
+            await dbContext.Difficulties.FirstOrDefaultAsync
+            (d => d.Id == walk.DifficultyId) == null)
             {
                 return null;
             }

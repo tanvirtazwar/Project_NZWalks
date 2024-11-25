@@ -69,6 +69,10 @@ public class AuthController
     [Route("Login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequestDto)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         var user = await userManager.Users.FirstOrDefaultAsync(appUser =>
             appUser.Email == loginRequestDto.Email);
 
@@ -108,6 +112,10 @@ public class AuthController
     public async Task<IActionResult> UpdatePassword
         ([FromBody] UpdatePasswordRequestDto updatePasswordRequestDto)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         try
         {
             var identityResult = await userAccountRepository.UpdatePasswordAsync(
@@ -133,6 +141,10 @@ public class AuthController
     public async Task<IActionResult> DeleteUser
         ([FromBody] DeletePasswordRequestDto deletePasswordRequest)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         try
         {
             var identityResult = await userAccountRepository.DeleteUserAsync

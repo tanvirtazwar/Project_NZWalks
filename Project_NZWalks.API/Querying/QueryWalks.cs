@@ -2,9 +2,9 @@
 {
     public class QueryWalks
     {
-        public string? WalksName { get; set; } = null;
+        public string? WalksName => null;
         public string? RegionName { get; set; } = null;
-        public string? DifficulryLevel { get; set; } = null;
+        public string? DifficultyLevel { get; set; } = null;
         public bool SortByDistance { get; set; } = false;
         public bool IsDescending { get; set; } = false;
         public int PageNumber { get; set; } = 1;
