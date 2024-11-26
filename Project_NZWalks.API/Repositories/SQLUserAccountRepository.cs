@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Project_NZWalks.API.Models.User;
-using System.Security.Claims;
 
 namespace Project_NZWalks.API.Repositories;
 
