@@ -9,7 +9,7 @@ public interface IWalkRepository
 
     Task<List<Walk>> GetAllAsync (QueryWalks query);
 
-    Task<Walk?> GetByIDAsync(Guid id);
+    Task<Walk?> GetByIdAsync(Guid id);
 
     Task<Walk?> UpdateAsync(Guid id, Walk walk);
 

@@ -3,7 +3,7 @@ using Project_NZWalks.API.Models.Domain;
 
 namespace Project_NZWalks.API.Data;
 
-public class NZWalksDbContext(DbContextOptions<NZWalksDbContext> dbContextOptions) 
+public class NzWalksDbContext(DbContextOptions<NzWalksDbContext> dbContextOptions) 
     : DbContext(dbContextOptions)
 {
     public DbSet<Difficulty> Difficulties { get; set; }

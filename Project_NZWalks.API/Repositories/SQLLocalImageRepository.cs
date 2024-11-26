@@ -6,10 +6,10 @@ using Project_NZWalks.API.Models.DTO;
 
 namespace Project_NZWalks.API.Repositories;
 
-public class SQLLocalImageRepository
+public class SqlLocalImageRepository
     (IWebHostEnvironment webHostEnvironment,
     IHttpContextAccessor httpContextAccessor, 
-    NZWalksDbContext dbContext) 
+    NzWalksDbContext dbContext) 
     : IImageRepository
 {
     public async Task<Image> UploadAsync(Image image)

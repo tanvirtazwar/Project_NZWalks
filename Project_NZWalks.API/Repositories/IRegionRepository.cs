@@ -6,7 +6,7 @@ public interface IRegionRepository
 {
     Task<List<Region>> GetAllAsync();
 
-    Task<Region?> GetByIDAsync(Guid id);
+    Task<Region?> GetByIdAsync(Guid id);
 
     Task<Region> CreateAsync(Region region);
 

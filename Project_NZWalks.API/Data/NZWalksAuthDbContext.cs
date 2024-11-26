@@ -5,7 +5,7 @@ using Project_NZWalks.API.Models.User;
 
 namespace Project_NZWalks.API.Data;
 
-public class NZWalksAuthDbContext(DbContextOptions<NZWalksAuthDbContext> options) 
+public class NzWalksAuthDbContext(DbContextOptions<NzWalksAuthDbContext> options) 
     : IdentityDbContext<AppUser>(options)
 {
     protected override void OnModelCreating(ModelBuilder builder)

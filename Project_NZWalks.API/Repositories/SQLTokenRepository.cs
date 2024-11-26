@@ -6,12 +6,12 @@ using System.Text;
 
 namespace Project_NZWalks.API.Repositories;
 
-public class SQLTokenRepository(IConfiguration configuration) 
+public class SqlTokenRepository(IConfiguration configuration) 
     : ITokenRepository
 {
     private readonly SymmetricSecurityKey _key =
        new(Encoding.UTF8.GetBytes(configuration["Jwt:SigningKey"]!));
-    public string CreateJWTToken(AppUser user, List<string> roles)
+    public string CreateJwtToken(AppUser user, List<string> roles)
     {
         //Create claim
         List<Claim> claims =

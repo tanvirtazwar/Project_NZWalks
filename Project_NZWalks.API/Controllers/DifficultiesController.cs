@@ -6,7 +6,7 @@ namespace Project_NZWalks.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DifficultiesController (NZWalksDbContext dbContext) : ControllerBase
+    public class DifficultiesController (NzWalksDbContext dbContext) : ControllerBase
     {
         [HttpGet]
         public async Task<IActionResult> GetAll()

@@ -68,7 +68,7 @@ public class WalksController(
     public async Task<IActionResult> GetById([FromRoute] Guid id)
     {
         //Check if Domain Exist
-        var walkDomainModel = await walkRepository.GetByIDAsync(id);
+        var walkDomainModel = await walkRepository.GetByIdAsync(id);
         if (walkDomainModel == null)
         {
             return NotFound();

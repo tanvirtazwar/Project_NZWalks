@@ -3,7 +3,7 @@ using Project_NZWalks.API.Models.User;
 
 namespace Project_NZWalks.API.Repositories;
 
-public class SQLUserAccountRepository
+public class SqlUserAccountRepository
     (UserManager<AppUser> userManager) 
     : IUserAccountRepository
 {

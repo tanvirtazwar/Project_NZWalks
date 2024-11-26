@@ -67,7 +67,7 @@ public class RegionsController
             return BadRequest(ModelState);
         }
         //Check if Domain Exist
-        var regionDomain = await regionRepository.GetByIDAsync(id);
+        var regionDomain = await regionRepository.GetByIdAsync(id);
         if (regionDomain == null)
         {
             return NotFound();

@@ -11,7 +11,7 @@ using Project_NZWalks.API.Data;
 
 namespace Project_NZWalks.API.Migrations
 {
-    [DbContext(typeof(NZWalksDbContext))]
+    [DbContext(typeof(NzWalksDbContext))]
     [Migration("20241124190131_ChangesMadeToImageAndRegion")]
     partial class ChangesMadeToImageAndRegion
     {

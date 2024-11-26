@@ -5,8 +5,8 @@ using Project_NZWalks.API.Models.Domain;
 
 namespace Project_NZWalks.API.Repositories;
 
-public class SQLRegionRepository
-    (NZWalksDbContext dbContext,
+public class SqlRegionRepository
+    (NzWalksDbContext dbContext,
         IHttpContextAccessor httpContextAccessor) 
     : IRegionRepository
 {
@@ -24,7 +24,7 @@ public class SQLRegionRepository
         return await dbContext.Regions.ToListAsync();
     }
 
-    public async Task<Region?> GetByIDAsync(Guid id)
+    public async Task<Region?> GetByIdAsync(Guid id)
     {
         return await dbContext.Regions.FindAsync(id);
     }

@@ -49,10 +49,10 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 
-builder.Services.AddDbContext<NZWalksDbContext>(options =>
+builder.Services.AddDbContext<NzWalksDbContext>(options =>
 options.UseNpgsql(builder.Configuration.GetConnectionString("NZWalksConnectionString")));
 
-builder.Services.AddDbContext<NZWalksAuthDbContext>(options =>
+builder.Services.AddDbContext<NzWalksAuthDbContext>(options =>
 options.UseNpgsql(builder.Configuration.GetConnectionString("NZWalksAuthConnectionString")));
 
 
@@ -63,7 +63,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
     options.Password.RequireUppercase = true;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequiredLength = 12;
-}).AddEntityFrameworkStores<NZWalksAuthDbContext>();
+}).AddEntityFrameworkStores<NzWalksAuthDbContext>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -89,11 +89,11 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddScoped<IRegionRepository, SQLRegionRepository>();
-builder.Services.AddScoped<IWalkRepository, SQLWalkRepository>();
-builder.Services.AddScoped<ITokenRepository, SQLTokenRepository>();
-builder.Services.AddScoped<IUserAccountRepository, SQLUserAccountRepository>();
-builder.Services.AddScoped<IImageRepository, SQLLocalImageRepository>();
+builder.Services.AddScoped<IRegionRepository, SqlRegionRepository>();
+builder.Services.AddScoped<IWalkRepository, SqlWalkRepository>();
+builder.Services.AddScoped<ITokenRepository, SqlTokenRepository>();
+builder.Services.AddScoped<IUserAccountRepository, SqlUserAccountRepository>();
+builder.Services.AddScoped<IImageRepository, SqlLocalImageRepository>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 

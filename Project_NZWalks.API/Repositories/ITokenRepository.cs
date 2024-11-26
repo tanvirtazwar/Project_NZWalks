@@ -5,5 +5,5 @@ namespace Project_NZWalks.API.Repositories;
 
 public interface ITokenRepository
 {
-    string CreateJWTToken(AppUser user, List<string> roles);
+    string CreateJwtToken(AppUser user, List<string> roles);
 }

@@ -11,7 +11,7 @@ using Project_NZWalks.API.Data;
 
 namespace Project_NZWalks.API.Migrations.NZWalksDb
 {
-    [DbContext(typeof(NZWalksDbContext))]
+    [DbContext(typeof(NzWalksDbContext))]
     [Migration("20241124180932_Modified_Walks")]
     partial class Modified_Walks
     {

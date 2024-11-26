@@ -6,8 +6,8 @@ using System.Security.Claims;
 
 namespace Project_NZWalks.API.Repositories;
 
-public class SQLWalkRepository
-    (NZWalksDbContext dbContext,
+public class SqlWalkRepository
+    (NzWalksDbContext dbContext,
     IHttpContextAccessor httpContextAccessor) 
     : IWalkRepository
 {
@@ -50,7 +50,7 @@ public class SQLWalkRepository
                 .Take(query.PageSize).ToListAsync();
     }
 
-    public async Task<Walk?> GetByIDAsync(Guid id)
+    public async Task<Walk?> GetByIdAsync(Guid id)
     {
         return await dbContext.Walks.Include("Difficulty").
             Include("Region").FirstOrDefaultAsync(x => x.Id == id);

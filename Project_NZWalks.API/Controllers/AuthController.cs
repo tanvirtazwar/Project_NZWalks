@@ -97,7 +97,7 @@ public class AuthController
         }
 
         //Create Token
-        var jwtToken = tokenRepository.CreateJWTToken(user, roles.ToList());
+        var jwtToken = tokenRepository.CreateJwtToken(user, roles.ToList());
         var loginResponse = new LoginResponseDto
         {
             JwtToken = jwtToken
