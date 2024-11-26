@@ -2,13 +2,9 @@
 
 namespace Project_NZWalks.API.Models.DTO;
 
-public class ImageUploadRequestDto
+public class ImageUpdateRequestDto
 {
-    [Required] 
-    public IFormFile File { get; set; } = null!;
-
     [Required]
-    public string FileName { get; set; } = null!;
-
+    public string? FileName { get; set; }
     public string? FileDescription { get; set; }
 }

@@ -1,122 +1,108 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Project_NZWalks.API.Data;
 using Project_NZWalks.API.Models.Domain;
+using Project_NZWalks.API.Querying;
+using System.Security.Claims;
 
-namespace Project_NZWalks.API.Repositories
+namespace Project_NZWalks.API.Repositories;
+
+public class SqlWalkRepository
+    (NzWalksDbContext dbContext,
+    IHttpContextAccessor httpContextAccessor) 
+    : IWalkRepository
 {
-    public class SQLWalkRepository : IWalkRepository
+    public async Task<Walk?> CreateAsync(Walk walk)
     {
-        private readonly NzWalksDbContext dbContext;
-
-        public SQLWalkRepository(NzWalksDbContext dbContext)
+        if (await dbContext.Regions.FirstOrDefaultAsync
+            (r => r.Id == walk.RegionId) == null 
+            || 
+            await dbContext.Difficulties.FirstOrDefaultAsync
+            (d => d.Id == walk.DifficultyId) == null)
         {
-            this.dbContext = dbContext;
+            return null;
+        }
+        walk.UserId = httpContextAccessor.HttpContext!.User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        await dbContext.Walks.AddAsync(walk);
+        await dbContext.SaveChangesAsync();
+        return walk;
+    }
+
+    public Task<List<Walk>> GetAllAsync(QueryWalks query)
+    {
+        var walks = dbContext.Walks.Include("Difficulty").Include("Region").AsQueryable();
+
+        walks = string.IsNullOrEmpty(query.WalksName)? walks 
+            : walks.Where(walk => walk.Name.Contains(query.WalksName));
+        walks = string.IsNullOrEmpty(query.RegionName) ? walks
+            : walks.Where(walk => walk.Region.Name.Contains(query.RegionName));
+        walks = string.IsNullOrEmpty(query.DifficultyLevel) ? walks
+            : walks.Where(walk => walk.Difficulty.Name.Contains(query.DifficultyLevel));
+
+        if (query.SortByDistance)
+        {
+            walks = query.IsDescending? walks.OrderByDescending(walk => walk.LengthInKm) 
+                : walks.OrderBy(walk => walk.LengthInKm);
         }
 
-        public async Task<Walk> CreateAsync(Walk walk)
+        var skipNumber = (query.PageNumber - 1) * query.PageSize;
+
+        return walks.Skip(skipNumber)
+                .Take(query.PageSize).ToListAsync();
+    }
+
+    public async Task<Walk?> GetByIdAsync(Guid id)
+    {
+        return await dbContext.Walks.Include("Difficulty").
+            Include("Region").FirstOrDefaultAsync(x => x.Id == id);
+    }
+
+    public async Task<Walk?> UpdateAsync(Guid id, Walk walk)
+    {
+        var existingWalk = await dbContext.Walks.FirstOrDefaultAsync(x => x.Id == id);
+        if (existingWalk != null)
         {
-            await dbContext.Walks.AddAsync(walk);
+            if (existingWalk.UserId != httpContextAccessor.HttpContext!
+                .User.FindFirstValue(ClaimTypes.NameIdentifier))
+            {
+                return null;
+            }
+            if (await dbContext.Regions.FirstOrDefaultAsync
+            (r => r.Id == walk.RegionId) == null
+            ||
+            await dbContext.Difficulties.FirstOrDefaultAsync
+            (d => d.Id == walk.DifficultyId) == null)
+            {
+                return null;
+            }
+            existingWalk.Name = walk.Name;
+            existingWalk.Description = walk.Description;
+            existingWalk.LengthInKm = walk.LengthInKm;
+            existingWalk.WalkImageUrl = walk.WalkImageUrl;
+            existingWalk.DifficultyId = walk.DifficultyId;
+            existingWalk.RegionId = walk.RegionId;
+
             await dbContext.SaveChangesAsync();
-            return walk;
         }
 
-        public async Task<List<Walk>> GetAllAsync
-            (
-            string? filterOn = null, string? filterQuery = null,
-            bool filterOnLength = false, double? filterDistanceUpper = null,
-            double? filterDistanceLower = null, 
-            string? sortBy = null, bool isAscending = true, 
-            int pageNumber = 1, int pageSize = 1000
-            )
+        return await dbContext.Walks.Include("Difficulty").
+            Include("Region").FirstOrDefaultAsync(x => x.Id == id);
+    }
+
+    public async Task<Walk?> DeleteAsync(Guid id)
+    {
+        var existingWalk = await dbContext.Walks.Include("Difficulty").
+            Include("Region").FirstOrDefaultAsync(x => x.Id == id);
+        if (existingWalk != null)
         {
-            var walks = dbContext.Walks.Include("Difficulty").Include("Region");
-
-            //Filtering
-
-            if (string.IsNullOrWhiteSpace(filterOn) == false &&
-                string.IsNullOrWhiteSpace(filterQuery) == false)
+            if (existingWalk.UserId != httpContextAccessor.HttpContext!
+                .User.FindFirstValue(ClaimTypes.NameIdentifier))
             {
-                if (filterOn.Equals("Name", StringComparison.OrdinalIgnoreCase))
-                {
-                    walks = walks.Where(x => x.Name.Contains(filterQuery));
-                }
-                else if (filterOn.Equals("Description", StringComparison.OrdinalIgnoreCase))
-                {
-                    walks = walks.Where(x => x.Description.Contains(filterQuery));
-                }
+                return null;
             }
-            if (filterOnLength)
-            {
-                if (filterDistanceUpper is not null && filterDistanceLower is not null 
-                    && filterDistanceUpper >= filterDistanceLower && filterDistanceLower >= 0)
-                {
-                    walks = walks.Where(x => x.LengthInKm <= filterDistanceUpper 
-                    && x.LengthInKm >= filterDistanceLower);
-                }
-            }
-
-            //Sorting
-            if (string.IsNullOrWhiteSpace(sortBy) == false)
-            {
-                if(sortBy.Equals("Name", StringComparison.OrdinalIgnoreCase))
-                {
-                    walks = isAscending? walks.OrderBy(x => x.Name):
-                        walks.OrderByDescending(x => x.Name);
-                }
-                else if (sortBy.Equals("Description", StringComparison.OrdinalIgnoreCase))
-                {
-                    walks = isAscending ? walks.OrderBy(x => x.Description) :
-                        walks.OrderByDescending(x => x.Description);
-                }
-                else if (sortBy.Equals("LengthInKm", StringComparison.OrdinalIgnoreCase))
-                {
-                    walks = isAscending ? walks.OrderBy(x => x.LengthInKm) :
-                        walks.OrderByDescending(x => x.LengthInKm);
-                }
-            }
-
-            //Pagination
-            var skipResults =(pageNumber - 1)*pageSize;
-
-            return await walks.Skip(skipResults).Take(pageSize).ToListAsync();
+            dbContext.Walks.Remove(existingWalk);
+            await dbContext.SaveChangesAsync();
         }
 
-        public async Task<Walk?> GetByIDAsync(Guid id)
-        {
-            return await dbContext.Walks.Include("Difficulty").
-                Include("Region").FirstOrDefaultAsync(x => x.Id == id);
-        }
-
-        public async Task<Walk?> UpdateAsync(Guid id, Walk walk)
-        {
-            var existingWalk = await dbContext.Walks.FirstOrDefaultAsync(x => x.Id == id);
-            if (existingWalk != null)
-            {
-                existingWalk.Name = walk.Name;
-                existingWalk.Description = walk.Description;
-                existingWalk.LengthInKm = walk.LengthInKm;
-                existingWalk.WalkImageUrl = walk.WalkImageUrl;
-                existingWalk.DifficultyId = walk.DifficultyId;
-                existingWalk.RegionId = walk.RegionId;
-
-                await dbContext.SaveChangesAsync();
-            }
-
-            return await dbContext.Walks.Include("Difficulty").
-                Include("Region").FirstOrDefaultAsync(x => x.Id == id);
-        }
-
-        public async Task<Walk?> DeleteAsync(Guid id)
-        {
-            var existingWalk = await dbContext.Walks.Include("Difficulty").
-                Include("Region").FirstOrDefaultAsync(x => x.Id == id);
-            if (existingWalk != null)
-            {
-                dbContext.Walks.Remove(existingWalk);
-                await dbContext.SaveChangesAsync();
-            }
-
-            return existingWalk;
-        }
+        return existingWalk;
     }
 }

@@ -1,5 +1,3 @@
-using Asp.Versioning;
-using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -8,84 +6,48 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Project_NZWalks.API.Data;
 using Project_NZWalks.API.Mappings;
-using Project_NZWalks.API.Middlewares;
+using Project_NZWalks.API.Models.User;
 using Project_NZWalks.API.Repositories;
-using Serilog;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .WriteTo.File("Logs/Project_NZWalks_Logs.txt",
-    rollingInterval: RollingInterval.Day)
-    .MinimumLevel.Information()
-    .CreateLogger();
-
-builder.Logging.ClearProviders();
-builder.Logging.AddSerilog(logger);
 
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddApiVersioning(options =>
-{
-    options.AssumeDefaultVersionWhenUnspecified = true;
-    options.DefaultApiVersion = new ApiVersion(1, 0);
-    options.ReportApiVersions = true;
-}).AddApiExplorer(options =>
-{
-    options.GroupNameFormat = "'v'VVV";
-    options.SubstituteApiVersionInUrl = true;
-});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen
-(
-    options =>
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(option =>
+{
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "NZWalks API", Version = "v1" });
+    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        options.SwaggerDoc
-        (
-            "v1", new OpenApiInfo
-            {
-                Title = "NZ Walks API",
-                Version = "v1"
-            }
-        );
-        options.AddSecurityDefinition
-        (
-            JwtBearerDefaults.AuthenticationScheme,
+        In = ParameterLocation.Header,
+        Description = "Please enter a valid token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "Bearer"
+    });
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
             new OpenApiSecurityScheme
             {
-                Name = "Authorization",
-                In = ParameterLocation.Header,
-                Type = SecuritySchemeType.ApiKey,
-                Scheme = JwtBearerDefaults.AuthenticationScheme
-            }
-        );
-        options.AddSecurityRequirement
-        (
-            new OpenApiSecurityRequirement
-            {
-            {
-                new OpenApiSecurityScheme
+                Reference = new OpenApiReference
                 {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = JwtBearerDefaults.AuthenticationScheme
-                    },
-                    Scheme = "Oauth2",
-                    Name = JwtBearerDefaults.AuthenticationScheme,
-                    In = ParameterLocation.Header
-                },
-                new List<string>()
-            }
-            }
-        );
-    }
-);
+                    Type=ReferenceType.SecurityScheme,
+                    Id="Bearer"
+                }
+            },
+            []
+        }
+    });
+});
 
 builder.Services.AddDbContext<NzWalksDbContext>(options =>
 options.UseNpgsql(builder.Configuration.GetConnectionString("NZWalksConnectionString")));
@@ -93,69 +55,57 @@ options.UseNpgsql(builder.Configuration.GetConnectionString("NZWalksConnectionSt
 builder.Services.AddDbContext<NzWalksAuthDbContext>(options =>
 options.UseNpgsql(builder.Configuration.GetConnectionString("NZWalksAuthConnectionString")));
 
-builder.Services.AddScoped<IRegionRepository, SQLRegionRepository>();
-builder.Services.AddScoped<IWalkRepository, SQLWalkRepository>();
-builder.Services.AddScoped<ITokenRepository, TokenRepository>();
-builder.Services.AddScoped<IImageRepository, LocalImageRepository>();
+
+builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredLength = 12;
+}).AddEntityFrameworkStores<NzWalksAuthDbContext>();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultSignOutScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    var secret = builder.Configuration["Jwt:SigningKey"];
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = !string.IsNullOrEmpty(secret) ?
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)) :
+            throw new ArgumentException("Jwt:Key is missing from appsettings.json")
+    };
+});
+
+builder.Services.AddScoped<IRegionRepository, SqlRegionRepository>();
+builder.Services.AddScoped<IWalkRepository, SqlWalkRepository>();
+builder.Services.AddScoped<ITokenRepository, SqlTokenRepository>();
+builder.Services.AddScoped<IUserAccountRepository, SqlUserAccountRepository>();
+builder.Services.AddScoped<IImageRepository, SqlLocalImageRepository>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
-builder.Services.AddIdentityCore<IdentityUser>()
-    .AddRoles<IdentityRole>()
-    .AddTokenProvider<DataProtectorTokenProvider<IdentityUser>>("NZWalks")
-    .AddEntityFrameworkStores<NzWalksAuthDbContext>()
-    .AddDefaultTokenProviders();
-
-builder.Services.Configure<IdentityOptions>(options =>
-{
-    options.Password.RequireDigit = false;
-    options.Password.RequireLowercase = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequiredLength = 6;
-    options.Password.RequiredUniqueChars = 1;
-});
-
-var secret = builder.Configuration["Jwt:Key"];  // Get key from appsettings.json
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-  .AddJwtBearer(options =>
-  {
-      options.TokenValidationParameters = new TokenValidationParameters
-      {
-          ValidateIssuer = true,
-          ValidateAudience = true,
-          ValidateLifetime = true,
-          ValidateIssuerSigningKey = true,
-          ValidIssuer = builder.Configuration["Jwt:Issuer"],
-          ValidAudience = builder.Configuration["Jwt:Audience"],
-          IssuerSigningKey = !string.IsNullOrEmpty(secret) ?
-          new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)) :
-          throw new ArgumentException("Jwt:Key is missing from appsettings.json"),
-      };
-  });
-
 
 var app = builder.Build();
-
-var versionDescriptionProvider = 
-    app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        foreach (var description in versionDescriptionProvider.ApiVersionDescriptions)
-        {
-            options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
-                description.GroupName.ToUpperInvariant());
-        }
-    });
+    app.UseSwaggerUI();
 }
-
-app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 

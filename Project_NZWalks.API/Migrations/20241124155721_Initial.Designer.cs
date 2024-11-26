@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Project_NZWalks.API.Data;
@@ -11,9 +12,11 @@ using Project_NZWalks.API.Data;
 namespace Project_NZWalks.API.Migrations
 {
     [DbContext(typeof(NzWalksDbContext))]
-    partial class NZWalksDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241124155721_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -78,10 +81,6 @@ namespace Project_NZWalks.API.Migrations
                     b.Property<long>("FileSizeInBytes")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
 
                     b.ToTable("Images");
@@ -104,10 +103,6 @@ namespace Project_NZWalks.API.Migrations
                     b.Property<string>("RegionImageUrl")
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
 
                     b.ToTable("Regions");
@@ -118,45 +113,39 @@ namespace Project_NZWalks.API.Migrations
                             Id = new Guid("f7248fc3-2585-4efb-8d1d-1c555f4087f6"),
                             Code = "AKL",
                             Name = "Auckland",
-                            RegionImageUrl = "https://images.pexels.com/photos/5169056/pexels-photo-5169056.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-                            UserId = "3c781f81-f753-45b6-9676-7a98629fb86f"
+                            RegionImageUrl = "https://images.pexels.com/photos/5169056/pexels-photo-5169056.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
                         },
                         new
                         {
                             Id = new Guid("6884f7d7-ad1f-4101-8df3-7a6fa7387d81"),
                             Code = "NTL",
-                            Name = "Northland",
-                            UserId = "ae5899b0-6f9e-4e18-a804-a6045edc37d2"
+                            Name = "Northland"
                         },
                         new
                         {
                             Id = new Guid("14ceba71-4b51-4777-9b17-46602cf66153"),
                             Code = "BOP",
-                            Name = "Bay Of Plenty",
-                            UserId = "3c781f81-f753-45b6-9676-7a98629fb86f"
+                            Name = "Bay Of Plenty"
                         },
                         new
                         {
                             Id = new Guid("cfa06ed2-bf65-4b65-93ed-c9d286ddb0de"),
                             Code = "WGN",
                             Name = "Wellington",
-                            RegionImageUrl = "https://images.pexels.com/photos/4350631/pexels-photo-4350631.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-                            UserId = "ae5899b0-6f9e-4e18-a804-a6045edc37d2"
+                            RegionImageUrl = "https://images.pexels.com/photos/4350631/pexels-photo-4350631.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
                         },
                         new
                         {
                             Id = new Guid("906cb139-415a-4bbb-a174-1a1faf9fb1f6"),
                             Code = "NSN",
                             Name = "Nelson",
-                            RegionImageUrl = "https://images.pexels.com/photos/13918194/pexels-photo-13918194.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-                            UserId = "ae5899b0-6f9e-4e18-a804-a6045edc37d2"
+                            RegionImageUrl = "https://images.pexels.com/photos/13918194/pexels-photo-13918194.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
                         },
                         new
                         {
                             Id = new Guid("f077a22e-4248-4bf6-b564-c7cf4e250263"),
                             Code = "STL",
-                            Name = "Southland",
-                            UserId = "3c781f81-f753-45b6-9676-7a98629fb86f"
+                            Name = "Southland"
                         });
                 });
 
@@ -182,10 +171,6 @@ namespace Project_NZWalks.API.Migrations
 
                     b.Property<Guid>("RegionId")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<string>("WalkImageUrl")
                         .HasColumnType("text");

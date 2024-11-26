@@ -2,7 +2,7 @@
 
 namespace Project_NZWalks.API.Models.DTO;
 
-public class LoginRequestDto
+public class UpdatePasswordRequestDto
 {
     [Required]
     [DataType(DataType.EmailAddress)]
@@ -10,5 +10,9 @@ public class LoginRequestDto
 
     [Required]
     [DataType(DataType.Password)]
-    public string Password { get; set; } = null!;
+    public string CurrentPassword { get; set; } = null!;
+
+    [Required]
+    [DataType(DataType.Password)]
+    public string NewPassword { get; set; } = null!;
 }

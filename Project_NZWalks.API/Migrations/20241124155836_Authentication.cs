@@ -1,15 +1,14 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace Project_NZWalks.API.Migrations.NzWalksAuthDb
+namespace Project_NZWalks.API.Migrations
 {
     /// <inheritdoc />
-    public partial class MovingtoPostgresql2 : Migration
+    public partial class Authentication : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

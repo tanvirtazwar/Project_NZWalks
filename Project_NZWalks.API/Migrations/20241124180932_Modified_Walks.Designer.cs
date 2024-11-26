@@ -9,11 +9,11 @@ using Project_NZWalks.API.Data;
 
 #nullable disable
 
-namespace Project_NZWalks.API.Migrations
+namespace Project_NZWalks.API.Migrations.NZWalksDb
 {
     [DbContext(typeof(NzWalksDbContext))]
-    [Migration("20241116125215_Moving to Postgresql")]
-    partial class MovingtoPostgresql
+    [Migration("20241124180932_Modified_Walks")]
+    partial class Modified_Walks
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -171,6 +171,10 @@ namespace Project_NZWalks.API.Migrations
 
                     b.Property<Guid>("RegionId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("WalkImageUrl")
                         .HasColumnType("text");
