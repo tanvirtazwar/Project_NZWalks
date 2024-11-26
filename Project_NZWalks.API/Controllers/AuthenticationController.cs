@@ -4,17 +4,15 @@ using Microsoft.EntityFrameworkCore;
 using Project_NZWalks.API.Models.DTO;
 using Project_NZWalks.API.Models.User;
 using Project_NZWalks.API.Repositories;
-using System.Security.Claims;
 
 namespace Project_NZWalks.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthController
+public class AuthenticationController
     (UserManager<AppUser> userManager,
     SignInManager<AppUser> signInManager,
-    ITokenRepository tokenRepository,
-    IUserAccountRepository userAccountRepository)
+    ITokenRepository tokenRepository)
     : ControllerBase
 {
     //Post :api/Auth/Register
@@ -104,85 +102,5 @@ public class AuthController
         };
         return Ok(loginResponse);
 
-    }
-
-    // POST: api/Auth/UpdatePassword
-    [HttpPost]
-    [Route("UpdatePassword")]
-    public async Task<IActionResult> UpdatePassword
-        ([FromBody] UpdatePasswordRequestDto updatePasswordRequestDto)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-        try
-        {
-            var identityResult = await userAccountRepository.UpdatePasswordAsync(
-                updatePasswordRequestDto.Email,
-                updatePasswordRequestDto.CurrentPassword,
-                updatePasswordRequestDto.NewPassword);
-
-            if (!identityResult.Succeeded)
-            {
-                return BadRequest(identityResult.Errors.FirstOrDefault()?.Description);
-            }
-
-            return Ok("Password Updated Successfully");
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ex.Message);
-        }
-    }
-
-    [HttpPost]
-    [Route("DeleteUser")]
-    public async Task<IActionResult> DeleteUser
-        ([FromBody] DeletePasswordRequestDto deletePasswordRequest)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-        try
-        {
-            var identityResult = await userAccountRepository.DeleteUserAsync
-                (deletePasswordRequest.Email, deletePasswordRequest.Password);
-
-            if (!identityResult.Succeeded)
-            {
-                return BadRequest(identityResult.Errors.FirstOrDefault()?.Description);
-            }
-
-            return Ok("User Deleted Successfully");
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ex.Message);
-        }
-    }
-
-    // GET: api/Auth/GetUserId
-    [HttpGet]
-    [Route("GetUserId")]
-    public IActionResult GetUserId()
-    {
-        try
-        {
-            // Retrieve the User ID from the claims
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized("User is not logged in or token is invalid.");
-            }
-
-            return Ok(new { UserId = userId });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ex.Message);
-        }
     }
 }

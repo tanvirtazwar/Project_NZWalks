@@ -6,11 +6,11 @@ public class AddWalkRequestDto
 {
     [Required]
     [MaxLength(100, ErrorMessage = "Name has to be maximum of 100 character")]
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     [Required]
     [MaxLength(1000, ErrorMessage = "Description has to be maximum of 1000 character")]
-    public string Description { get; set; }
+    public string Description { get; set; } = null!;
 
     [Required]
     [Range(0, 50, ErrorMessage ="Length must be greater than 0 Kilometer and" +
@@ -19,7 +19,7 @@ public class AddWalkRequestDto
 
     public string? WalkImageUrl { get; set; }
 
-    [Required]
+    [Required] 
     public Guid DifficultyId { get; set; }
 
     [Required]

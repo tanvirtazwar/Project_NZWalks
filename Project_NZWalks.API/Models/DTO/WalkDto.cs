@@ -1,6 +1,4 @@
-﻿using Project_NZWalks.API.Models.User;
-
-namespace Project_NZWalks.API.Models.DTO;
+﻿namespace Project_NZWalks.API.Models.DTO;
 
 public class WalkDto
 {

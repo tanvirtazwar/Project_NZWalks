@@ -2,5 +2,5 @@
 
 public class LoginResponseDto
 {
-    public string JwtToken { get; set; }
+    public string JwtToken { get; set; } = null!;
 }

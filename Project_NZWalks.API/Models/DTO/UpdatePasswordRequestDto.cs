@@ -6,13 +6,13 @@ public class UpdatePasswordRequestDto
 {
     [Required]
     [DataType(DataType.EmailAddress)]
-    public string Email { get; set; }
+    public string Email { get; set; } = null!;
 
     [Required]
     [DataType(DataType.Password)]
-    public string CurrentPassword { get; set; }
+    public string CurrentPassword { get; set; } = null!;
 
     [Required]
     [DataType(DataType.Password)]
-    public string NewPassword { get; set; }
+    public string NewPassword { get; set; } = null!;
 }

@@ -3,8 +3,8 @@
 public class RegionDto
 {
     public Guid Id { get; set; }
-    public string Code { get; set; }
-    public string Name { get; set; }
-    public string UserId { get; set; }
-    public string? RegionImageUrl { get; set; }
+    public string Code { get; set; } = null!;
+    public string Name { get; set; } = null!;
+    public string UserId { get; set; } = null!;
+    public string? RegionImageUrl { get; set; } = null;
 }

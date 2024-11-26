@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Project_NZWalks.API.Models.User;
+﻿using Project_NZWalks.API.Models.User;
 
 namespace Project_NZWalks.API.Repositories;
 

@@ -1,6 +1,4 @@
-﻿using Project_NZWalks.API.Models.User;
-
-namespace Project_NZWalks.API.Models.Domain;
+﻿namespace Project_NZWalks.API.Models.Domain;
 
 public class Walk
 {
